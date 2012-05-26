@@ -1,0 +1,33 @@
+<html>
+    <head>
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>  
+
+        <script>
+
+            startRefresh();
+
+            function testPrint(input) 
+            {
+                alert(input)
+            }
+
+            function startRefresh() {
+                setTimeout("autoRefresh()", 3000);
+            }
+
+            function autoRefresh() {                                
+                setTimeout("autoRefresh()", 3000);
+                location.reload(true);
+            }
+
+        </script>
+    </head>
+
+    <body>
+        <img src="media/riskmap_en_small.png" usemap="#riskmap"/>
+
+        <map name = "riskmap">
+            <area shape="poly1" onclick="testPrint(1)" coords="0,0,50,50,0,50"  alt="testlink" />
+        </map>
+    </body>
+</html>
