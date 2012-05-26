@@ -1,0 +1,18 @@
+{
+"Territories": [
+{"Connections": [1],
+   "Continent": 0}
+{"Connections": [4, 0, 2],
+   "Continent": 1}
+{"Connections": [1, 3],
+   "Continent": 1}
+{"Connections": [4, 2],
+   "Continent": 1}
+{"Connections": [1, 3],
+   "Continent": 1}
+],
+"Continents": [
+{"Bonus": 1},
+{"Bonus": 3}
+]
+}
