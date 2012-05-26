@@ -20,7 +20,10 @@ _cgo_export.*
 _testmain.go
 
 *.exe
+
+# Kate
 *~
+*.kate-swp
 
 # Visual Studio Rules
 
