@@ -38,6 +38,8 @@ namespace RiskMapMaker
             this.createCountries = new System.Windows.Forms.RadioButton();
             this.createConnections = new System.Windows.Forms.RadioButton();
             this.Save = new System.Windows.Forms.Button();
+            this.LoadData = new System.Windows.Forms.Button();
+            this.LoadLastSave = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -129,11 +131,33 @@ namespace RiskMapMaker
             this.Save.UseVisualStyleBackColor = true;
             this.Save.Click += new System.EventHandler(this.Save_Click);
             // 
+            // LoadData
+            // 
+            this.LoadData.Location = new System.Drawing.Point(298, 727);
+            this.LoadData.Name = "LoadData";
+            this.LoadData.Size = new System.Drawing.Size(137, 23);
+            this.LoadData.TabIndex = 8;
+            this.LoadData.Text = "Load Country Data (L)";
+            this.LoadData.UseVisualStyleBackColor = true;
+            this.LoadData.Click += new System.EventHandler(this.Load_Click);
+            // 
+            // LoadLastSave
+            // 
+            this.LoadLastSave.Location = new System.Drawing.Point(298, 756);
+            this.LoadLastSave.Name = "LoadLastSave";
+            this.LoadLastSave.Size = new System.Drawing.Size(137, 23);
+            this.LoadLastSave.TabIndex = 9;
+            this.LoadLastSave.Text = "Load Last Save (;)";
+            this.LoadLastSave.UseVisualStyleBackColor = true;
+            this.LoadLastSave.Click += new System.EventHandler(this.LoadLastSave_Click);
+            // 
             // BoardCreator
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1048, 803);
+            this.Controls.Add(this.LoadLastSave);
+            this.Controls.Add(this.LoadData);
             this.Controls.Add(this.Save);
             this.Controls.Add(this.createConnections);
             this.Controls.Add(this.createCountries);
@@ -163,6 +187,8 @@ namespace RiskMapMaker
         private RadioButton createCountries;
         private RadioButton createConnections;
         private Button Save;
+        private Button LoadData;
+        private Button LoadLastSave;
     }
 }
 

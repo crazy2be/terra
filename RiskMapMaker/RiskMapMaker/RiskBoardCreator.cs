@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Threading;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
 namespace RiskMapMaker
 {
@@ -36,6 +38,7 @@ namespace RiskMapMaker
            BringToFront();            
         }
 
+        [Serializable]
         class Country
         {
             public List<PointF> polyPoints = new List<PointF>();
@@ -111,6 +114,7 @@ namespace RiskMapMaker
                 return area;
             }
 
+            //http://en.wikipedia.org/wiki/Centroid
             public PointF Centroid()
             {
                 double area = Area();
@@ -208,7 +212,7 @@ namespace RiskMapMaker
                 if (countrySelected != null)
                 {
                     foreach (Country country in countries)
-                        if (country.IsIn(lastMousePosition))
+                        if (country.IsIn(lastMousePosition) && !country.countriesConnected.Contains(countrySelected))
                         {
                             countrySelected.countriesConnected.Add(country);
                             country.countriesConnected.Add(countrySelected);
@@ -235,11 +239,6 @@ namespace RiskMapMaker
                 countrySelected = null;
                 countries.Remove(countrySelected);
             }
-            Refresh();
-        }
-
-        private void Export_Click(object sender, EventArgs e)
-        {
             Refresh();
         }
 
@@ -286,6 +285,12 @@ namespace RiskMapMaker
                     break;
                 case Keys.S:
                     Save_Click(null, null);
+                    break;
+                case Keys.L:
+                    Load_Click(null, null);
+                    break;
+                case Keys.OemSemicolon:
+                    LoadLastSave_Click(null, null);
                     break;
             }
         }
@@ -360,11 +365,22 @@ namespace RiskMapMaker
             if (createCountries.Checked)
             {
                 stateCur = States.Selecting;
+
+                //Auto-save
+                try
+                {
+                    BinaryFormatter formatter = new BinaryFormatter();
+                    Stream writeSteam = File.Create("autosaved.riskmap");
+                    formatter.Serialize(writeSteam, countries);
+                }
+                catch { }
             }
             else
             {
                 countryCur = new Country();
             }
+
+            Refresh();
         }
 
         private void createConnections_CheckedChanged(object sender, EventArgs e)
@@ -372,14 +388,141 @@ namespace RiskMapMaker
             if (createConnections.Checked)
             {
                 stateCur = States.Connections;
+
+                //Auto-save
+                try
+                {
+                    BinaryFormatter formatter = new BinaryFormatter();
+                    Stream writeSteam = File.Create("autosaved.riskmap");
+                    formatter.Serialize(writeSteam, countries);
+                }
+                catch { }
             }
+
+            Refresh();
         }
 
         private void Save_Click(object sender, EventArgs e)
         {
-            BinaryFormater
+            try
+            {
+                //We just save countries
+                BinaryFormatter formatter = new BinaryFormatter();
+
+                SaveFileDialog fileDialog = new SaveFileDialog();
+                fileDialog.InitialDirectory = Directory.GetCurrentDirectory();
+                fileDialog.DefaultExt = ".riskmap";
+                DialogResult result = fileDialog.ShowDialog();
+
+                if (result == DialogResult.OK)
+                {
+                    Stream writeSteam = fileDialog.OpenFile();
+
+                    formatter.Serialize(writeSteam, countries);
+                }
+            }
+            catch (Exception error)
+            {                
+                MessageBox.Show("Could not save as error occured: " + error.ToString());
+            }
+
+            Refresh();
+        }
+
+        private void Load_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                //We just save countries
+                BinaryFormatter formatter = new BinaryFormatter();
+
+                OpenFileDialog fileDialog = new OpenFileDialog();
+                fileDialog.InitialDirectory = Directory.GetCurrentDirectory();
+                fileDialog.DefaultExt = ".riskmap";                
+                DialogResult result = fileDialog.ShowDialog();
+
+                if (result == DialogResult.OK)
+                {
+                    Stream readStream = fileDialog.OpenFile();
+
+                    //Clear all non loadable attributes
+                    countriesWithConnectionsAdded.Clear();
+                    countryCur = new Country();
+                    countrySelected = null;
+                    lastSelected = null;
+
+                    countries = (List<Country>)formatter.Deserialize(readStream);
+                }
+            }
+            catch (Exception error)
+            {
+                MessageBox.Show("Could not load as error occured: " + error.ToString());
+            }
+
+            Refresh();
+        }
+
+        private void LoadLastSave_Click(object sender, EventArgs e)
+        {
+            int x;
+
+            //We just save countries
+            BinaryFormatter formatter = new BinaryFormatter();
+
+            List<string> curFiles = new List<string>(Directory.GetFiles(Directory.GetCurrentDirectory()));
+            for (x = curFiles.Count - 1; x >= 0; x--)
+                if (!curFiles[x].EndsWith(".riskmap"))
+                    curFiles.RemoveAt(x);
+
+            curFiles.Sort((f1, f2) => File.GetLastWriteTime(f1).Ticks.CompareTo(File.GetLastWriteTime(f2).Ticks));
+
+            //Just try all the files, breaking on success
+            for (x = 0; x < curFiles.Count; x++ )
+                try
+                {
+                    Stream readStream = File.OpenRead(curFiles[x]);
+
+                    //Clear all non loadable attributes
+                    countriesWithConnectionsAdded.Clear();
+                    countryCur = new Country();
+                    countrySelected = null;
+                    lastSelected = null;
+
+                    countries = (List<Country>)formatter.Deserialize(readStream);
+                    break;
+                }
+                catch (Exception error)
+                {                    
+                    //MessageBox.Show("Could not load as error occured: " + error.ToString());
+                }
+
+            if(x == curFiles.Count)
+                MessageBox.Show("Could not find any loadable files out of " + curFiles.Count + " tried.");
+
+            Refresh();
         }
 
 
+        private void Export_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog fileDialog = new SaveFileDialog();
+            fileDialog.InitialDirectory = Directory.GetCurrentDirectory();
+            fileDialog.DefaultExt = ".maphtml";
+            DialogResult result = fileDialog.ShowDialog();
+
+            if (result == DialogResult.OK)
+            {
+                Stream writeSteam = fileDialog.OpenFile();
+
+                
+            }
+
+            Refresh();
+        }
+
+        public string HtmlSerialize(List<Country> countries)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
