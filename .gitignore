@@ -3,11 +3,9 @@
 *.a
 *.so
 
-
 # Folders
 _obj
 _test
-
 
 # Architecture specific extensions/prefixes
 *.[568vq]
@@ -18,11 +16,8 @@ _test
 *.cgo2.c
 _cgo_defun.c
 _cgo_gotypes.go
-_cgo_export.
-*
-
+_cgo_export.*
 _testmain.go
-
 
 *.exe
 *~
