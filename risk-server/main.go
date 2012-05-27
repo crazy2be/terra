@@ -90,7 +90,7 @@ func JoinGameHandler(w http.ResponseWriter, r *http.Request) {
 	defer game.Unlock()
 	p := NewPlayer(c)
 	game.Players = append(game.Players, p)
-	playernum := l + 1
+	playernum := l
 	
 	randtok := genRandomToken()
 	token := string(byte(playernum / 16) + '0') + string(byte(playernum % 16) + '0') + randtok
@@ -135,7 +135,7 @@ func ApiHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	
 	playerid := game.playerID(token)
-	if playerid < 0 || playerid > len(game.Players) {
+	if playerid < 0 || playerid > len(game.Players) - 1 {
 		w.WriteHeader(400)
 		fmt.Fprintln(w, "Invalid player id", playerid)
 		return
