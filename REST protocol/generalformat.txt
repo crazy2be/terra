@@ -6,12 +6,18 @@
 		,...
 		//All players are returned here
 	}
+
+	"Territories" : {
+
+	}
+
 	//Present:
 		//Always
 	"Turn" : {		
 		"Player" :  1,
 		"State": "play" / " ? WHAT ARE VALID STATES!
 	}
+
 	//Present:
 		//Always when needed
 	"Extra" : {
@@ -26,4 +32,5 @@
 		"Attacker's Dice" : [1, 2, 5],
 		"Defender's Dice": [5, 4]
 	}
+
 }
