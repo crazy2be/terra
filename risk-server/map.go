@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"math/rand"
+	"os"
 )
 
 type Territory struct {
@@ -18,23 +20,38 @@ func (t *Territory) Dirty() {
 	}
 }
 
-func LoadMap(numplayers int, mapname string) []Territory {
-	t := make([]Territory, 10)
+func (t *Territory) Connected(other int) bool {
+	for i := range t.Connections {
+		if t.Connections[i] == other {
+			return true
+		}
+	}
+	return false
+}
+
+func (g *Game) LoadMap(numplayers int, mapname string) error {
+	// TODO: Un hard-code this.
+	f, err := os.Open("maps/default/connections.json")
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	
+	dec := json.NewDecoder(f)
+	err = dec.Decode(g)
+	if err != nil {
+		return err
+	}
+	
+	t := g.Territories
 	for i := range t {
-		// All territories should be dirty for all players to start.
 		t[i].dirty = make([]bool, numplayers)
 		for j := range t[i].dirty {
 			t[i].dirty[j] = true
 		}
-		
-		t[i].Men = rand.Int() % 5
+		t[i].Men = rand.Int() % 6 + 1
 		t[i].Owner = rand.Int() % numplayers;
-		t[i].Connections = make([]int, rand.Int() % 4)
-		c := t[i].Connections
-		for j := range c {
-			c[j] = rand.Int() % 10
-		}
-		t[i].Continent = rand.Int() % 2;
 	}
-	return t
+	
+	return nil
 }

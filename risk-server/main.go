@@ -87,19 +87,25 @@ func JoinGameHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	
 	game.Lock()
+	defer game.Unlock()
 	p := NewPlayer(c)
 	game.Players = append(game.Players, p)
+	playernum := l + 1
 	
 	randtok := genRandomToken()
-	token := string(byte(c / 16) + '0') + string(byte(c % 16) + '0') + randtok
+	token := string(byte(playernum / 16) + '0') + string(byte(playernum % 16) + '0') + randtok
 	game.tokens = append(game.tokens, token)
-	game.Unlock()
+	
+	if l + 1 == c {
+		game.Start()
+	}
 	
 	http.Redirect(w, r, fmt.Sprintf("/game/%s?token=%s", gameid, token), 302)
 }
 
 func GameHandler(w http.ResponseWriter, r *http.Request) {
-	
+	// TODO: Un hard-code this.
+	http.ServeFile(w, r, "webpage/risktesting.html")
 }
 
 var allGamesM sync.Mutex
@@ -123,25 +129,47 @@ func ApiHandler(w http.ResponseWriter, r *http.Request) {
 	
 	playerid := game.playerID(token)
 	if playerid < 0 || playerid > len(game.Players) {
-		w.WriteHeader(403)
+		w.WriteHeader(400)
 		fmt.Fprintln(w, "Invalid player id", playerid)
+		return
+	}
+	if playerid != game.Turn.Player {
+		w.WriteHeader(403)
+		fmt.Fprintf(w, "It's not your turn, %d. It is currently %d's turn!", playerid, game.Turn.Player)
 		return
 	}
 	
 	game.Lock()
+	defer game.Unlock()
+	
+	var extra interface{}
+	var err error
+	
 	switch (method) {
+		// Arg: Reader that corresponds to r.Body
+		// Actually could just be an object if we already
+		// Know how to deserialize it.
+		// Returns "extra" object and error
+		// if error not nil, show 500 page with error
+		// else print json delta with extra object.
 		case "poll":
-			game.Poll(w, r)
+			extra, err = game.Poll()
 		case "state":
-			game.State(w, r)
+			game.State(w, r, playerid)
+			return
 		case "attack":
-			game.AttackApi(w, r, playerid)
+			extra, err = game.AttackApi(r)
 		case "place":
-			game.Place(w, r)
+			extra, err = game.PlaceApi(r)
 		case "move":
-			game.Move(w, r)
+			extra, err = game.MoveApi(r)
 	}
-	game.Unlock()
+	if err != nil {
+		w.WriteHeader(500)
+		fmt.Fprintln(w, "Internal error:", err)
+		return
+	}
+	game.SendDelta(w, playerid, extra)
 }
 
 func main() {
@@ -159,5 +187,8 @@ func main() {
 	mux.Post("/game/:id/api/:method", ApiHandler)
 	
 	http.Handle("/", mux)
+	http.Handle("/assets/", http.FileServer(http.Dir("assets/")))
+	http.Handle("/maps/", http.FileServer(http.Dir("maps/")))
+	
 	http.ListenAndServe(":8088", nil)
 }
