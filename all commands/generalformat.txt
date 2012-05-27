@@ -1,0 +1,29 @@
+{
+	"Players" : {
+		1: {
+			"color" : "blue"
+		}
+		,...
+		//All players are returned here
+	}
+	//Present:
+		//Always
+	"Turn" : {		
+		"Player" :  1,
+		"State": "play" / " ? WHAT ARE VALID STATES!
+	}
+	//Present:
+		//Always when needed
+	"Extra" : {
+		//Present:
+			//Dice are filled in right after an attack call
+		//Restrictions:
+			//Client:
+				//Dice are any quantity and type anything, as long as I know in advance how the server
+				//handles to result, I can duplicate any result.
+			//Server:
+				?????
+		"Attacker's Dice" : [1, 2, 5],
+		"Defender's Dice": [5, 4]
+	}
+}
