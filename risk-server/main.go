@@ -100,7 +100,7 @@ func JoinGameHandler(w http.ResponseWriter, r *http.Request) {
 		game.Start()
 	}
 	
-	http.Redirect(w, r, fmt.Sprintf("/game/%s?token=%s", gameid, token), 302)
+	http.Redirect(w, r, fmt.Sprintf("/game/%s/play?token=%s", gameid, token), 302)
 }
 
 func GameHandler(w http.ResponseWriter, r *http.Request) {
@@ -183,7 +183,7 @@ func main() {
 	mux.Get("/join/:id", JoinGameUIHandler)
 	mux.Post("/join/:id", JoinGameHandler)
 	
-	mux.Get("/game/:id", GameHandler)
+	mux.Get("/game/:id/play", GameHandler)
 	mux.Post("/game/:id/api/:method", ApiHandler)
 	
 	http.Handle("/assets/", http.FileServer(http.Dir(".")))
