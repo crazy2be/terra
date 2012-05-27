@@ -186,8 +186,8 @@ func main() {
 	mux.Get("/game/:id", GameHandler)
 	mux.Post("/game/:id/api/:method", ApiHandler)
 	
-	http.Handle("/assets/", http.FileServer(http.Dir("assets/")))
-	http.Handle("/maps/", http.FileServer(http.Dir("maps/")))
+	http.Handle("/assets/", http.FileServer(http.Dir(".")))
+	http.Handle("/maps/", http.FileServer(http.Dir(".")))
 	http.Handle("/", mux)
 	
 	http.ListenAndServe(":8088", nil)
