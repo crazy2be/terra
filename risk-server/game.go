@@ -10,7 +10,7 @@ import (
 	"io"
 )
 
-var DEBUG_MODE = true
+var DEBUG_MODE = false
 
 type Player struct {
 	dirty []bool
