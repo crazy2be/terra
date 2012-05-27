@@ -58,8 +58,8 @@ func InitGame(numplayers int, mapfile string) *Game {
 }
 
 func (g *Game) Start() {
-	g.Turn.Player = rand.Int() % len(g.Players)
-	g.Turn.Stage = "placing"
+	g.Turn.Player = (rand.Int() % len(g.Players)) - 1
+	g.NextPlayer()
 }
 
 func (g *Game) NextPlayer() {
@@ -125,7 +125,9 @@ func (g *Game) SendDelta(w io.Writer, player int, extra interface{}) {
 	enc := json.NewEncoder(w)
 	fmt.Fprintln(w, "{")
 	fmt.Fprintln(w, "	\"Extra\": {")
-	enc.Encode(extra)
+	if extra != nil {
+		enc.Encode(extra)
+	}
 	fmt.Fprintln(w, "	},")
 	fmt.Fprintln(w, "	\"Players\": {")
 	for i := range g.Players {
