@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.Threading;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace RiskMapMaker
 {
@@ -42,14 +43,27 @@ namespace RiskMapMaker
         class Country
         {
             public List<PointF> polyPoints = new List<PointF>();
-
+            
+            [JsonPropertyAttribute(DefaultValueHandling = DefaultValueHandling.Ignore)]
             public List<Country> countriesConnected = new List<Country>();
             
             /// <summary>
+            /// This is filled in by draw, it does not neccessarily correspond with continents, 
+            /// so you have to always do a search!
+            /// </summary>
+            public int continentNumber = -1;
+
+            /// <summary>
+            /// Just temporary, don't use.
+            /// </summary>
+            public int tempNumber = -1;
+
+            /// <summary>
             /// Set after it is fully made, and only then! (likely)
             /// </summary>
+            [JsonPropertyAttribute(DefaultValueHandling = DefaultValueHandling.Ignore)]
             public PointF centerPoint;
-
+            
             public bool IsIn(PointF point)
             {
                 //First decompose poly to triangles and then check from there.
@@ -68,7 +82,7 @@ namespace RiskMapMaker
             {
                 double cp1 = CrossProduct(Sub(b, a), Sub(p1, a));
                 double cp2 = CrossProduct(Sub(b, a), Sub(p2, a));
-                return (cp1 * cp2 >= 0);
+                return (cp1 * cp2 > 0);
             }
 
             private static bool PointInTriangle(PointF p, PointF a, PointF b, PointF c)
@@ -145,12 +159,46 @@ namespace RiskMapMaker
 
                 return new PointF((float)Cx, (float)Cy);
             }
-        }
-    
 
+            public override string ToString()
+            {
+                return centerPoint.ToString() + " cont num: " + continentNumber.ToString();
+            }
+        }
+
+        List<List<Country>> continents = new List<List<Country>>();
+        List<Country> FindContinent(Country country)
+        {
+            bool selectedFound = false;
+            List<Country> curContinent = null;
+            foreach (List<Country> continent in continents)
+            {
+                foreach (Country contCountry in continent)
+                    if (contCountry == country)
+                    {
+                        if (selectedFound) //REALLY REALLY BAD!
+                            throw new Exception("Country found twice in continent data");
+
+                        selectedFound = true;
+                        curContinent = continent;                        
+                    }                
+            }
+            
+            return curContinent;            
+        }
+
+        Country CurrentlyMousedOver()
+        {
+            foreach (Country country in countries)
+                if (country.IsIn(lastMousePosition))
+                {
+                    return country;                    
+                }
+            return null;
+        }
 
         States stateCur = States.Selecting;
-        enum States { Selecting, Connections };
+        enum States { Selecting, Connections, Continents };
 
         List<Country> countries = new List<Country>();
         Country countryCur = new Country();
@@ -165,6 +213,7 @@ namespace RiskMapMaker
         //Sort of hackish to make removing connections possible
         List<Country> countriesWithConnectionsAdded = new List<Country>();
 
+        //stateCur dependent
         private void pictureBox1_Click(object sender, EventArgs e)
         {
             MouseEventArgs mouseEvent = (MouseEventArgs)e;
@@ -180,17 +229,31 @@ namespace RiskMapMaker
                 countrySelected = null;
 
                 //Look through countries to find the one selected
-                foreach(Country country in countries)
-                    if (country.IsIn(pointCur))
+                countrySelected = CurrentlyMousedOver();             
+            }
+            else if (stateCur == States.Continents)
+                //Make new continent grouping with it, if it does not already have one
+            {
+                //Look through countries to find the one selected
+                countrySelected = CurrentlyMousedOver();                
+
+                if (countrySelected != null)
+                {                    
+                    List<Country> curContinent = FindContinent(countrySelected);
+
+                    if (curContinent == null)
                     {
-                        countrySelected = country;
-                        break;
-                    }                
+                        curContinent = new List<Country>();
+                        curContinent.Add(countrySelected);
+                        continents.Add(curContinent);
+                    }
+                }
             }
 
             Refresh();
         }
 
+        //stateCur dependent
         private void Add_Click(object sender, EventArgs e)
         {
             if (stateCur == States.Selecting)
@@ -211,23 +274,44 @@ namespace RiskMapMaker
             {
                 if (countrySelected != null)
                 {
-                    foreach (Country country in countries)
-                        if (country.IsIn(lastMousePosition) && !country.countriesConnected.Contains(countrySelected))
-                        {
-                            countrySelected.countriesConnected.Add(country);
-                            country.countriesConnected.Add(countrySelected);
-                            break;
-                        }
+                    Country curMousedOver = CurrentlyMousedOver();     
+                    
+                    if (!curMousedOver.countriesConnected.Contains(countrySelected))
+                    {
+                        countrySelected.countriesConnected.Add(curMousedOver);
+                        curMousedOver.countriesConnected.Add(countrySelected);                        
+                    }
                     //Move it to back
                     if(countriesWithConnectionsAdded.Contains(countrySelected))
                         countriesWithConnectionsAdded.Remove(countrySelected);
                     countriesWithConnectionsAdded.Add(countrySelected);
                 }
             }
+                //Remove from existing group and add to new
+            else if (stateCur == States.Continents)
+            {
+                Country curMousedOver = CurrentlyMousedOver();
+                if (countrySelected != null && curMousedOver != null)
+                {
+                    //Find the continent of the country currently selected
+                    List<Country> newContinent = FindContinent(countrySelected);
+                    List<Country> oldContinent = FindContinent(curMousedOver);
+
+                    //If the continents are the same, this will still work fine
+                    if (newContinent != null)
+                    {
+                        if (oldContinent != null && oldContinent.Contains(curMousedOver))
+                            oldContinent.Remove(curMousedOver);
+
+                        newContinent.Add(curMousedOver);                        
+                    }
+                }
+            }
 
             Refresh();
         }
 
+        //stateCur dependent
         private void ClearCurrent_Click(object sender, EventArgs e)
         {
             if (stateCur == States.Selecting)
@@ -236,12 +320,23 @@ namespace RiskMapMaker
             }
             else if (stateCur == States.Connections)
             {
-                countrySelected = null;
-                countries.Remove(countrySelected);
+                if (countrySelected != null)
+                {
+                    Country countryToRemove = countrySelected;
+
+                    ClearCountryConnections(countryToRemove);
+
+                    countrySelected = null;
+                }
+            }
+            else if (stateCur == States.Continents)
+            {
+                continents.Clear();
             }
             Refresh();
         }
 
+        //stateCur dependent
         private void ClearLast_Click(object sender, EventArgs e)
         {
             if (stateCur == States.Selecting)
@@ -256,100 +351,149 @@ namespace RiskMapMaker
                 {
                     Country countryToRemove = countriesWithConnectionsAdded[countriesWithConnectionsAdded.Count - 1];
 
-                    for (int x = countryToRemove.countriesConnected.Count - 1; x >= 0; x--)
-                    {
-                        Country other = countryToRemove.countriesConnected[x];
-                        countryToRemove.countriesConnected.Remove(other);
-                        other.countriesConnected.Remove(countryToRemove);
-                    }
+                    ClearCountryConnections(countryToRemove);
+                    countriesWithConnectionsAdded.RemoveAt(countriesWithConnectionsAdded.Count - 1);
                 }
             }
             Refresh();
         }
 
-        private void Anything_KeyDown(object sender, KeyEventArgs e)
+
+        private void clearCountry_Click(object sender, EventArgs e)
         {
-            switch (e.KeyData)
+            if (stateCur == States.Connections || stateCur == States.Continents)
             {
-                case Keys.A: //Add
-                    Add_Click(null, null);
-                    break;
-                case Keys.C:
-                    ClearCurrent_Click(null, null);
-                    break;
-                case Keys.E:
-                    Export_Click(null, null);
-                    break;
-                case Keys.X:
-                    ClearLast_Click(null, null);
-                    break;
-                case Keys.S:
-                    Save_Click(null, null);
-                    break;
-                case Keys.L:
-                    Load_Click(null, null);
-                    break;
+                RemoveCountry(countrySelected);
+                countrySelected = null;
+            }
+        }
+
+        private void RemoveCountry(Country country)
+        {
+            if (country == null)
+                return;
+
+            for (int x = continents.Count - 1; x >= 0; x++)
+                for (int y = continents[x].Count - 1; y >= 0; y++)
+                {
+                    if (continents[x][y] == country)
+                        continents[x].RemoveAt(y);
+                }
+
+            ClearCountryConnections(country);
+
+            countries.Remove(country);            
+        }
+
+        private void ClearCountryConnections(Country country)
+        {
+            if (country == null)
+                return;
+
+            for (int x = country.countriesConnected.Count - 1; x >= 0; x--)
+            {
+                Country other = country.countriesConnected[x];
+                country.countriesConnected.Remove(other);
+                other.countriesConnected.Remove(country);
+            }
+        }
+
+        private void Anything_KeyDown(object sender, KeyEventArgs e)
+        {            
+            switch (e.KeyData)
+            {                
                 case Keys.OemSemicolon:
                     LoadLastSave_Click(null, null);
                     break;
             }
+            Refresh();
         }
 
         Color[] colors = { Color.Red, Color.Orange, Color.Yellow, Color.Green, Color.Blue, Color.Indigo, Color.Violet };
 
+        Font font = new Font(new FontFamily("Arial"), 12);
         private void pictureBox1_Paint(object sender, PaintEventArgs e)
         {
-            for(int x = 0; x < countries.Count; x++)
+            try
             {
-                Color color = colors[x % colors.Length];
-  
-                if(countries[x] == countrySelected)
-                    e.Graphics.FillPolygon(Brushes.White, countries[x].polyPoints.ToArray());
-                else
-                    e.Graphics.FillPolygon(new SolidBrush(color), countries[x].polyPoints.ToArray());       
-         
-                PointF[] box = new PointF[4];
-                box[0] = Country.Sub(countries[x].centerPoint, new PointF(10, 10));
-                box[1] = Country.Sub(countries[x].centerPoint, new PointF(-10, 10));
-                box[2] = Country.Sub(countries[x].centerPoint, new PointF(-10, -10));
-                box[3] = Country.Sub(countries[x].centerPoint, new PointF(10, -10));
+                //Recalc all continent numbers            
 
-                e.Graphics.FillPolygon(Brushes.Black, box);
-            }
+                foreach (Country country in countries)
+                    country.continentNumber = -1;
 
-            for (int x = 0; x < countries.Count; x++)
-            {
-                Color color = colors[x % colors.Length];
-
-                Pen connectedPen = new Pen(Color.FromArgb(200, Color.Firebrick), 5);
-                connectedPen.EndCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor;
-                connectedPen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dash;
-                
-                foreach (Country connected in countries[x].countriesConnected)
+                for (int x = 0; x < continents.Count; x++)
                 {
-                    PointF direction = Country.Sub(countries[x].centerPoint, connected.centerPoint);
+                    for (int y = 0; y < continents[x].Count; y++)
+                    {
+                        continents[x][y].continentNumber = x;
+                    }
+                }
 
-                    PointF off = Country.Mult(direction, (float)(1.0 / (Math.Sqrt(direction.X * direction.X + direction.Y * direction.Y))));
-                    off = Country.Mult(off, 10);
+                //Country areas
+                for (int x = 0; x < countries.Count; x++)
+                {
+                    Color color = colors[x % colors.Length];
 
-                    e.Graphics.DrawLine(connectedPen, connected.centerPoint, Country.Add(off,countries[x].centerPoint));
+                    if (countries[x] == countrySelected)
+                        e.Graphics.FillPolygon(Brushes.White, countries[x].polyPoints.ToArray());
+                    else
+                        e.Graphics.FillPolygon(new SolidBrush(Color.FromArgb(150, color)), countries[x].polyPoints.ToArray());
+
+                    PointF[] box = new PointF[4];
+                    box[0] = Country.Sub(countries[x].centerPoint, new PointF(10, 10));
+                    box[1] = Country.Sub(countries[x].centerPoint, new PointF(-10, 10));
+                    box[2] = Country.Sub(countries[x].centerPoint, new PointF(-10, -10));
+                    box[3] = Country.Sub(countries[x].centerPoint, new PointF(10, -10));
+
+                    e.Graphics.FillPolygon(new SolidBrush(Color.FromArgb(100, Color.WhiteSmoke)), box);
+
+                    if (countries[x].continentNumber >= 0)
+                    {
+                        e.Graphics.DrawString(countries[x].continentNumber.ToString(), font, new SolidBrush(Color.FromArgb(200, Color.Azure)),
+                            Country.Sub(countries[x].centerPoint, new PointF(20, 20)));
+                    }
+                }
+                //Country connections
+                for (int x = 0; x < countries.Count; x++)
+                {
+                    Color color = colors[x % colors.Length];
+
+                    Pen connectedPen = new Pen(Color.FromArgb(200, Color.Firebrick), 5);
+                    connectedPen.EndCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor;
+                    connectedPen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dash;
+
+                    foreach (Country connected in countries[x].countriesConnected)
+                    {
+                        PointF direction = Country.Sub(countries[x].centerPoint, connected.centerPoint);
+
+                        PointF off = Country.Mult(direction, (float)(1.0 / (Math.Sqrt(direction.X * direction.X + direction.Y * direction.Y))));
+                        off = Country.Mult(off, 15);
+
+                        e.Graphics.DrawLine(connectedPen, Country.Add(off, connected.centerPoint), countries[x].centerPoint);
+                    }
+                }
+
+                if (countryCur != null)
+                {
+                    //Currently creating country
+                    //Don't do last line, color last (current) specially (and the last point is not a line)
+                    for (int x = 0; x < countryCur.polyPoints.Count - 1; x++)
+                    {
+                        e.Graphics.DrawLine(new Pen(Color.Olive, 2), countryCur.polyPoints[x], countryCur.polyPoints[x + 1]);
+                    }
+                }
+                //last part
+                if (stateCur == States.Selecting)
+                {
+                    if (countryCur != null && countryCur.polyPoints.Count > 0)
+                        e.Graphics.DrawLine(new Pen(Color.OrangeRed, 2),
+                            countryCur.polyPoints[countryCur.polyPoints.Count - 1],
+                            lastMousePosition);
                 }
             }
-
-            //Don't do last line, color last (current) specially (and the last point is not a line)
-            for (int x = 0; x < countryCur.polyPoints.Count - 1; x++)
+            catch (Exception error)
             {
-                e.Graphics.DrawLine(new Pen(Color.Olive, 5), countryCur.polyPoints[x], countryCur.polyPoints[x + 1]);
-            }
-            
-            //last part
 
-            if (stateCur == States.Selecting)
-            {
-                if (countryCur.polyPoints.Count > 0)
-                    e.Graphics.DrawLine(new Pen(Color.OrangeRed, 5),
-                        countryCur.polyPoints[countryCur.polyPoints.Count - 1],
-                        lastMousePosition);
             }
         }
 
@@ -366,14 +510,10 @@ namespace RiskMapMaker
             {
                 stateCur = States.Selecting;
 
+                countrySelected = null;
+
                 //Auto-save
-                try
-                {
-                    BinaryFormatter formatter = new BinaryFormatter();
-                    Stream writeSteam = File.Create("autosaved.riskmap");
-                    formatter.Serialize(writeSteam, countries);
-                }
-                catch { }
+                Autosave();
             }
             else
             {
@@ -382,24 +522,48 @@ namespace RiskMapMaker
 
             Refresh();
         }
-
+        
         private void createConnections_CheckedChanged(object sender, EventArgs e)
         {
             if (createConnections.Checked)
             {
                 stateCur = States.Connections;
 
+                countrySelected = null;
+
                 //Auto-save
-                try
-                {
-                    BinaryFormatter formatter = new BinaryFormatter();
-                    Stream writeSteam = File.Create("autosaved.riskmap");
-                    formatter.Serialize(writeSteam, countries);
-                }
-                catch { }
+                Autosave();
             }
 
             Refresh();
+        }
+
+        private void SelectContinents_CheckedChanged(object sender, EventArgs e)
+        {
+            if (SelectContinents.Checked)
+            {
+                stateCur = States.Continents;
+
+                countrySelected = null;
+
+                Autosave();
+            }
+
+            Refresh();
+        }
+
+        private void Autosave()
+        {                        
+            /*
+            try
+            {
+                BinaryFormatter formatter = new BinaryFormatter();
+                Stream writeSteam = File.Create("autosaved.riskmap");
+                formatter.Serialize(writeSteam, countries);
+                writeSteam.Close();
+            }
+            catch { }
+            */
         }
 
         private void Save_Click(object sender, EventArgs e)
@@ -419,6 +583,8 @@ namespace RiskMapMaker
                     Stream writeSteam = fileDialog.OpenFile();
 
                     formatter.Serialize(writeSteam, countries);
+
+                    writeSteam.Close();
                 }
             }
             catch (Exception error)
@@ -433,9 +599,6 @@ namespace RiskMapMaker
         {
             try
             {
-                //We just save countries
-                BinaryFormatter formatter = new BinaryFormatter();
-
                 OpenFileDialog fileDialog = new OpenFileDialog();
                 fileDialog.InitialDirectory = Directory.GetCurrentDirectory();
                 fileDialog.DefaultExt = ".riskmap";                
@@ -445,13 +608,9 @@ namespace RiskMapMaker
                 {
                     Stream readStream = fileDialog.OpenFile();
 
-                    //Clear all non loadable attributes
-                    countriesWithConnectionsAdded.Clear();
-                    countryCur = new Country();
-                    countrySelected = null;
-                    lastSelected = null;
+                    LoadFromStream(readStream);
 
-                    countries = (List<Country>)formatter.Deserialize(readStream);
+                    readStream.Close();
                 }
             }
             catch (Exception error)
@@ -467,14 +626,12 @@ namespace RiskMapMaker
             int x;
 
             //We just save countries
-            BinaryFormatter formatter = new BinaryFormatter();
-
             List<string> curFiles = new List<string>(Directory.GetFiles(Directory.GetCurrentDirectory()));
             for (x = curFiles.Count - 1; x >= 0; x--)
                 if (!curFiles[x].EndsWith(".riskmap"))
                     curFiles.RemoveAt(x);
 
-            curFiles.Sort((f1, f2) => File.GetLastWriteTime(f1).Ticks.CompareTo(File.GetLastWriteTime(f2).Ticks));
+            curFiles.Sort((f1, f2) => File.GetLastWriteTime(f2).Ticks.CompareTo(File.GetLastWriteTime(f1).Ticks));
 
             //Just try all the files, breaking on success
             for (x = 0; x < curFiles.Count; x++ )
@@ -482,13 +639,9 @@ namespace RiskMapMaker
                 {
                     Stream readStream = File.OpenRead(curFiles[x]);
 
-                    //Clear all non loadable attributes
-                    countriesWithConnectionsAdded.Clear();
-                    countryCur = new Country();
-                    countrySelected = null;
-                    lastSelected = null;
+                    LoadFromStream(readStream);
 
-                    countries = (List<Country>)formatter.Deserialize(readStream);
+                    readStream.Close();
                     break;
                 }
                 catch (Exception error)
@@ -505,24 +658,159 @@ namespace RiskMapMaker
 
         private void Export_Click(object sender, EventArgs e)
         {
-            SaveFileDialog fileDialog = new SaveFileDialog();
-            fileDialog.InitialDirectory = Directory.GetCurrentDirectory();
-            fileDialog.DefaultExt = ".maphtml";
-            DialogResult result = fileDialog.ShowDialog();
-
-            if (result == DialogResult.OK)
-            {
-                Stream writeSteam = fileDialog.OpenFile();
-
-                
-            }
+            HtmlSerialize(countries);
 
             Refresh();
         }
 
-        public string HtmlSerialize(List<Country> countries)
-        {
-            throw new NotImplementedException();
+        private string HtmlSerialize(List<Country> countries)
+        {            
+            //Clipboard.SetText()
+
+            StringBuilder outputHtml = new StringBuilder();
+
+            for(int x = 0; x < countries.Count; x++)
+            {
+                //Id
+                outputHtml.Append("<area class='territory' shape='poly' id=" + x.ToString());                
+                outputHtml.AppendLine();
+                outputHtml.AppendLine();
+
+                //Events
+                outputHtml.AppendLine("onclick='territoryClicked(id)'");
+                outputHtml.AppendLine("onmouseover='territoryMousedOver(id, "
+                    +countries[x].centerPoint.X.ToString()+","
+                    +countries[x].centerPoint.Y.ToString()+")'");
+                outputHtml.AppendLine("onmouseout='territoryMouseOut(id, "
+                    + countries[x].centerPoint.X.ToString() + ","
+                    + countries[x].centerPoint.Y.ToString() + ")'");
+                outputHtml.AppendLine();
+
+                //Coords
+                outputHtml.Append("coords='");
+                //string temp = "";
+                for (int y = 0; y < countries[x].polyPoints.Count; y++)
+                {
+                    outputHtml.Append((int)countries[x].polyPoints[y].X);
+                    outputHtml.Append(",");
+                    outputHtml.Append((int)countries[x].polyPoints[y].Y);
+                    outputHtml.Append(",");
+
+
+                    //temp += "x" + (y + 1).ToString() + ": " + (int)countries[x].polyPoints[y].X;
+                    //temp += ",   " + "y" + (y + 1).ToString() + ": " + (int)countries[x].polyPoints[y].Y + ", \n";                    
+                }
+
+                outputHtml.AppendLine("'/>");
+                outputHtml.AppendLine();
+                outputHtml.AppendLine();
+            }
+            
+
+            Clipboard.SetText(outputHtml.ToString());
+
+            return outputHtml.ToString();
         }
+
+        private string JSONSerialize(List<Country> countries)
+        {
+            StringBuilder outputJSON = new StringBuilder();
+
+            outputJSON.AppendLine("{");
+
+            //start territories
+            outputJSON.AppendLine("\"Territories\": [");
+
+
+            for (int x = 0; x < countries.Count; x++)            
+                countries[x].tempNumber = x;
+            
+            for (int x = 0; x < countries.Count; x++)            
+            {                
+                //Start connections and territory
+                outputJSON.Append("\t{\"Connections\": [");
+
+                int y;
+                for (y = 0; y < countries[x].countriesConnected.Count - 1; y++)               
+                    outputJSON.Append(countries[x].countriesConnected[y].tempNumber + ", ");
+                outputJSON.Append(countries[x].countriesConnected[y].tempNumber);
+
+                //End connections
+                outputJSON.AppendLine("],");
+
+                if (countries[x].continentNumber < 0)
+                    MessageBox.Show("invalid continent data");
+
+                //Continent
+                outputJSON.Append("\t   \"Continent\": " + countries[x].continentNumber);
+
+                //end territory
+                if(x != countries.Count - 1)
+                    outputJSON.AppendLine("\t},");
+                else
+                    outputJSON.AppendLine("\t}");
+            }
+
+            //end territories
+            outputJSON.AppendLine("],");
+
+            //Hardcoded bonuses
+            outputJSON.AppendLine("\"Continents\": [");
+            outputJSON.AppendLine("\t{\"Bonus\": 1},");
+            outputJSON.AppendLine("\t{\"Bonus\": 3}");            
+            outputJSON.AppendLine("]");
+
+            outputJSON.AppendLine("}");            
+
+            Clipboard.SetText(outputJSON.ToString());
+            return outputJSON.ToString();
+        }
+
+        private void LoadFromStream (Stream stream)
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+            //Clear all non loadable attributes
+            countriesWithConnectionsAdded.Clear();
+            countryCur = new Country();
+            countrySelected = null;
+            lastSelected = null;
+
+            countries = (List<Country>)formatter.Deserialize(stream);
+
+            //Recalc continents            
+            continents = new List<List<Country>>();
+
+            foreach (Country country in countries)
+            {
+                if(country.continentNumber == -1)
+                    continue;
+
+                List<Country> curContinent = null; //Will be set
+                
+                //The last one will be found, so overlaps will not be detected
+                foreach (List<Country> continent in continents)                
+                    foreach (Country contCountry in continent)
+                        if (contCountry.continentNumber == country.continentNumber)                        
+                            curContinent = continent;                         
+                                           
+                if (curContinent == null)
+                {
+                    curContinent = new List<Country>();
+                    continents.Add(curContinent);
+                }
+
+                curContinent.Add(country);
+
+                if (country.countriesConnected.Contains(country))
+                    country.countriesConnected.Remove(country);
+            }
+        }
+
+        private void exportToJSON_Click(object sender, EventArgs e)
+        {
+            JSONSerialize(countries);
+        }
+
+
     }
 }

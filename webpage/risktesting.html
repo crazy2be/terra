@@ -1,33 +1,171 @@
 <html>
     <head>
-        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>  
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>  
+        <script type="text/javascript" src="https://raw.github.com/caleb531/jcanvas/master/builds/5.2.1/jcanvas.js"></script>  
 
-        <script>
+        <style type="text/css">
+            #riskmap{position: absolute; top : 10px; left: 10px; z-index:1; }
+            #jcanvas{position: absolute; top : 10px; left: 10px; z-index:2; pointer-events: none; }
+        </style>
 
-            startRefresh();
+        <script type="text/javascript">
+
+            //var countryMap = ["china", "afirca", "us","south emerica", "england", "europe"];
+
+            //startRefresh();
 
             function testPrint(input) 
             {
                 alert(input)
             }
 
+            /*
             function startRefresh() {
                 setTimeout("autoRefresh()", 3000);
             }
 
             function autoRefresh() {                                
                 setTimeout("autoRefresh()", 3000);
-                location.reload(true);
+                location.reload(true);                
+            }
+            */
+
+            function territoryClicked(countryNumber) {
+                alert(countryNumber);                                                
+            }
+            function territoryMousedOver(countryNumber, centerX, centerY){            
+                var radial = $("canvas").gradient({
+                  x1: centerX, y1: centerY,
+                  x2: centerX, y2: centerY,
+                  r1: 10, r2: 30,
+                  c1: "rgba(255, 255, 255, 0.75)",
+                  c2: "rgba(255, 255, 255, 0)"
+                });
+                $("canvas").drawArc({
+                  fillStyle: radial,
+                  x: centerX, y: centerY,
+                  radius: 30
+                });
+            }
+
+            function territoryMouseOut(countryNumber, centerX, centerY){
+                $("canvas").clearCanvas({                  
+                  x: centerX, y: centerY,
+                  radius : 30
+                });
+            }
+
+            $(".territory").on("click", "area", 5, territoryClicked);
+            $('area').click(territoryClicked);
+
+            $(document).ready(pageLoaded);
+
+            function pageLoaded() {                
+                /*
+                $("canvas").drawImage({
+                    source: "media/riskmap_en_small.png",
+                    x: 0, y: 0,
+                    fromCenter: false
+                });
+                */
+                
+                $("canvas").drawLine({
+                    strokeStyle: "#000",
+                    strokeWidth: 1,
+                    x1: 729,   y1: 362, 
+                    x2: 728,   y2: 367, 
+                    x3: 727,   y3: 374, 
+                    x4: 727,   y4: 377, 
+                    x5: 724,   y5: 384, 
+                    x6: 724,   y6: 386, 
+                    x7: 740,   y7: 389, 
+                    x8: 743,   y8: 389, 
+                    x9: 749,   y9: 389, 
+                    x10: 749,   y10: 377, 
+                    x11: 742,   y11: 376, 
+                    x12: 734,   y12: 369, 
+                    x13: 732,   y13: 360, 
+                    x14: 731,   y14: 361, 
+                    x15: 727,   y15: 363, 
+                });   
+                             
+            }
+
+            function passClickToRiskMap(ev)
+            {
+                document.getElementById('riskmap').click();
             }
 
         </script>
     </head>
 
     <body>
-        <img src="media/riskmap_en_small.png" usemap="#riskmap"/>
+        <canvas id="jcanvas" width="800px" height="600px" onclick="passClickToRiskMap"></canvas>
+        <img id="riskmap" width="800px" height="600px" src="media/riskmap_en_small.png" usemap="#riskmap"/>
 
-        <map name = "riskmap">
-            <area shape="poly1" onclick="testPrint(1) " coords="0,0,50,50,0,50"  alt="testlink" />
+        <map name="riskmap" id="riskmap">
+                        {
+
+
+{
+"Territories": [
+	{"Connections": [1],
+	   "Continent": 0	}
+	{"Connections": [4, 0, 2],
+	   "Continent": 1	}
+	{"Connections": [1, 3],
+	   "Continent": 1	}
+	{"Connections": [4, 2],
+	   "Continent": 1	}
+	{"Connections": [1, 3],
+	   "Continent": 1	}
+],
+"Continents": [
+	{"Bonus": 1},
+	{"Bonus": 3}
+]
+}
+
+<area class='territory' shape='poly' id=0
+
+onclick='territoryClicked(id)'
+onmouseover='territoryMousedOver(id, 736.0089,378.9449)'
+onmouseout='territoryMouseOut(id, 736.0089,378.9449)'
+
+coords='729,362,728,367,727,374,727,377,724,384,724,386,740,389,743,389,749,389,749,377,742,376,734,369,732,360,731,361,727,363,'/>
+<area class='territory' shape='poly' id=1
+
+onclick='territoryClicked(id)'
+onmouseover='territoryMousedOver(id, 704.8396,359.8166)'
+onmouseout='territoryMouseOut(id, 704.8396,359.8166)'
+
+coords='699,367,708,362,711,361,714,361,715,360,717,356,708,354,699,357,696,358,696,361,696,365,697,368,697,368,'/>
+<area class='territory' shape='poly' id=2
+
+onclick='territoryClicked(id)'
+onmouseover='territoryMousedOver(id, 659.5084,363.5367)'
+onmouseout='territoryMouseOut(id, 659.5084,363.5367)'
+
+coords='677,370,668,368,665,365,660,358,657,353,650,352,649,354,649,360,652,366,659,370,663,371,670,373,675,374,677,372,675,369,'/>
+<area class='territory' shape='poly' id=3
+
+onclick='territoryClicked(id)'
+onmouseover='territoryMousedOver(id, 641.7573,328.1153)'
+onmouseout='territoryMouseOut(id, 641.7573,328.1153)'
+
+coords='640,343,646,339,651,327,652,322,646,319,640,315,637,315,633,324,635,334,638,341,641,345,642,345,'/>
+<area class='territory' shape='poly' id=4
+
+onclick='territoryClicked(id)'
+onmouseover='territoryMousedOver(id, 679.2529,297.7095)'
+onmouseout='territoryMouseOut(id, 679.2529,297.7095)'
+
+coords='686,341,691,334,701,324,709,313,713,308,717,299,718,296,704,287,701,280,693,268,679,267,657,268,647,267,645,293,652,310,670,321,682,339,683,341,'/>
+
+
+
+
+            
         </map>
     </body>
 </html>
