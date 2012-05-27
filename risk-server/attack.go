@@ -30,7 +30,7 @@ func (g *Game) AttackApi(r *http.Request) (extra AttackResp, err error) {
 		return ar, err
 	}
 	
-	attdice, defdice, error := g.Attack(ad.From, ad.To, ad.Dice)
+	attdice, defdice, err := g.Attack(ad.From, ad.To, ad.Dice)
 	if err != nil {
 		return ar, nil
 	}
@@ -83,8 +83,8 @@ func (g *Game) Attack(from int, to int, adice int) (attdice []int, defdice []int
 	t[from].Dirty()
 	
 	if t[to].Men == 0 {
-		t.Turn.MenLeft = adice
-		t.Turn.LastAttacked = to
+		g.Turn.MenLeft = adice
+		g.Turn.LastAttacked = to
 		t[to].Owner = t[from].Owner
 	}
 	

@@ -42,8 +42,8 @@ func (g *Game) Move(from, to, num int) error {
 		if g.Turn.MenLeft > num {
 			return fmt.Errorf("You just attacked territory %d, you must move a minimum of %d men!", g.Turn.LastAttacked, g.Turn.MenLeft)
 		}
-		if to != t.Turn.LastAttacked {
-			return fmt.Errorf("You just attacked territory %d, you must move your men there, not to territory %d.", t.Turn.LastAttacked, to)
+		if to != g.Turn.LastAttacked {
+			return fmt.Errorf("You just attacked territory %d, you must move your men there, not to territory %d.", g.Turn.LastAttacked, to)
 		}
 	}
 	t[from].Men -= num
