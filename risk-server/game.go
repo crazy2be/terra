@@ -163,9 +163,8 @@ func (g *Game) SendDelta(w io.Writer, player int, extra interface{}) {
 		g.Territories[i].dirty[player] = false
 	}
 	fmt.Fprintln(w, "	},")
-	fmt.Fprintln(w, "	\"Turn\": {")
+	fmt.Fprintln(w, "	\"Turn\": ")
 	enc.Encode(g.Turn)
-	fmt.Fprintln(w, "	}")
 	fmt.Fprintln(w, "}")
 }
 
