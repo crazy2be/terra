@@ -326,8 +326,11 @@
             function attack(countryAttacker, countryDefender) {
                 var object = new Object();
 
-                object["From"] = countryAttacker;
-                object["To"] = countryDefender;
+                alert(countryAttacker);
+                alert(countryDefender);
+
+                object["From"] = parseInt(countryAttacker);
+                object["To"] = parseInt(countryDefender);
                 object["Dice"] = 3; //TEMP HARDCODED!
 
                 jQuery.post("api/attack", JSON.stringify(object), loadJSONToBoardState);
