@@ -42,6 +42,7 @@ namespace RiskMapMaker
             this.LoadLastSave = new System.Windows.Forms.Button();
             this.SelectContinents = new System.Windows.Forms.RadioButton();
             this.exportToJSON = new System.Windows.Forms.Button();
+            this.clearCountry = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -175,11 +176,22 @@ namespace RiskMapMaker
             this.exportToJSON.UseVisualStyleBackColor = true;
             this.exportToJSON.Click += new System.EventHandler(this.exportToJSON_Click);
             // 
+            // clearCountry
+            // 
+            this.clearCountry.Location = new System.Drawing.Point(155, 727);
+            this.clearCountry.Name = "clearCountry";
+            this.clearCountry.Size = new System.Drawing.Size(137, 23);
+            this.clearCountry.TabIndex = 12;
+            this.clearCountry.Text = "Clear Country (&q)";
+            this.clearCountry.UseVisualStyleBackColor = true;
+            this.clearCountry.Click += new System.EventHandler(this.clearCountry_Click);
+            // 
             // BoardCreator
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1048, 803);
+            this.Controls.Add(this.clearCountry);
             this.Controls.Add(this.exportToJSON);
             this.Controls.Add(this.SelectContinents);
             this.Controls.Add(this.LoadLastSave);
@@ -217,6 +229,7 @@ namespace RiskMapMaker
         private Button LoadLastSave;
         private RadioButton SelectContinents;
         private Button exportToJSON;
+        private Button clearCountry;
     }
 }
 
