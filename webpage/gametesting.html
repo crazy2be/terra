@@ -90,20 +90,79 @@
                     x12: 734,   y12: 369, 
                     x13: 732,   y13: 360, 
                     x14: 731,   y14: 361, 
-                    x15: 727,   y15: 363, 
+                    x15: 727,   y15: 363 
                 });   
-                             
+             
+             refreshBoard();                
             }
 
             function passClickToRiskMap(ev)
             {
                 document.getElementById('riskmap').click();
             }
+            
+            var boardState = {
+                activeCountries: [
+                    {
+                        drawType : "attack",
+                        drawArguments: {
+                            centerX: 500
+                            centerY: 500
+                        },
+                        territoryInfo : 0
+                    }
+                ]
+            };
+
+            var drawMethods = {
+                'attack': function (centerX, centerY) {
+                    alert(centerX);
+                    var radial = $("canvas").gradient({
+                        x1: centerX, y1: centerY,
+                        x2: centerX, y2: centerY,
+                        r1: 10, r2: 30,
+                        c1: "rgba(255, 255, 255, 0.75)",
+                        c2: "rgba(255, 255, 255, 0)"
+                    });
+                    $("canvas").drawArc({
+                        fillStyle: radial,
+                        x: centerX, y: centerY,
+                        radius: 30
+                    });
+                }
+            }
+
+            function refreshBoard() 
+            {
+                var actCont = boardState.activeCountries;
+                for (var i = 0; i < actCont.length; i++) {
+
+                    alert(actCont[i].drawArguments[0]);
+
+                    drawMethods[actCont[i].drawType].apply(
+                        this, Array.prototype.slice.call(
+                            actCont[i].drawArguments
+                        )
+                    );
+                }
+
+                /*
+                jQuery.get("C:/risk/risk-server/.poll", function(data) {
+                  $('.result').html(data);
+                  alert('Load was performed.');
+              });
+                */
+            }            
+
 
         </script>
     </head>
 
     <body>
+    <div class="result">
+
+    </div>
+
         <canvas id="jcanvas" width="800px" height="600px" onclick="passClickToRiskMap"></canvas>
         <img id="mapimage" width="800px" height="600px" alt="Terra Map" usemap="#mapevents"/>
 
