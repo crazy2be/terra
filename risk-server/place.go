@@ -23,7 +23,7 @@ func (g *Game) PlaceApi(r *http.Request) (interface{}, error) {
 }
 
 func (g *Game) Place(territory int) error {
-	if g.Turn.MenLeft >= 0 {
+	if g.Turn.MenLeft <= 0 {
 		return fmt.Errorf("Sorry, you don't have any men to place!")
 	}
 	where := g.Territories[territory]
