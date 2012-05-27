@@ -30,29 +30,39 @@ func (g *Game) AttackApi(r *http.Request) (extra AttackResp, err error) {
 		return ar, err
 	}
 	
-	attdice, defdice := g.Attack(ad.From, ad.To, ad.Dice)
+	attdice, defdice, error := g.Attack(ad.From, ad.To, ad.Dice)
+	if err != nil {
+		return ar, nil
+	}
 	ar.AttDice = attdice
 	ar.DefDice = defdice
 	
 	return ar, nil
 }
 
-func (g *Game) Attack(from int, to int, adice int) (attdice []int, defdice []int) {
+func (g *Game) Attack(from int, to int, adice int) (attdice []int, defdice []int, err error) {
+	if g.Turn.MenLeft != 0 {
+		err = fmt.Errorf("You already won your battle against country %d, now you have to move men (minimum %d) there!", g.Turn.LastAttacked, g.MenLeft)
+		return
+	}
+	
 	// Validation
 	if adice > 3 {
 		adice = 3
 	}
+	
+	t := g.Territories
 	// TODO: Validate that territories are connected
-	// TODO: Validate that from and to are within the valid range of g.Territories.
+	// TODO: Validate that from and to are within the valid range of t.
 	// TODO: Move this into ValidateAttack() and add tests.
-	if adice + 1 > g.Territories[from].Men {
-		adice = g.Territories[from].Men - 1
+	if adice + 1 > t[from].Men {
+		adice = t[from].Men - 1
 	}
 	ddice := 2
-	if ddice > g.Territories[to].Men {
-		ddice = g.Territories[to].Men
+	if ddice > t[to].Men {
+		ddice = t[to].Men
 	}
-	fmt.Println("Attack debug info:", adice, ddice, g.Territories[from], g.Territories[to])
+	fmt.Println("Attack debug info:", adice, ddice, t[from], t[to])
 	
 	// Fill dice with random numbers
 	attdice = make([]int, adice)
@@ -67,10 +77,16 @@ func (g *Game) Attack(from int, to int, adice int) (attdice []int, defdice []int
 	// Calculate winners
 	attwins, defwins := DiceBattle(attdice, defdice)
 	
-	g.Territories[to].Men -= attwins
-	g.Territories[to].Dirty()
-	g.Territories[from].Men -= defwins
-	g.Territories[from].Dirty()
+	t[to].Men -= attwins
+	t[to].Dirty()
+	t[from].Men -= defwins
+	t[from].Dirty()
+	
+	if t[to].Men == 0 {
+		t.Turn.MenLeft = adice
+		t.Turn.LastAttacked = to
+		t[to].Owner = t[from].Owner
+	}
 	
 	return
 }

@@ -27,7 +27,8 @@ func NewPlayer(numplayers int) Player {
 type Turn struct {
 	Player int
 	Stage  string
-	MenLeft int // Men left to place (in the placing stage)
+	MenLeft int // Men left to place (in the placing stage), minimum number of men to move when an attack is won in the attacking stage
+	LastAttacked int
 }
 
 type Continent struct {
