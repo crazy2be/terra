@@ -100,7 +100,8 @@ func JoinGameHandler(w http.ResponseWriter, r *http.Request) {
 		game.Start()
 	}
 	
-	http.Redirect(w, r, fmt.Sprintf("/game/%s/play?token=%s", gameid, token), 302)
+	w.Header().Add("Set-Cookie", "token="+token+";Path=/")
+	http.Redirect(w, r, fmt.Sprintf("/game/%s/play", gameid), 302)
 }
 
 func GameHandler(w http.ResponseWriter, r *http.Request) {
@@ -120,7 +121,13 @@ func ApiHandler(w http.ResponseWriter, r *http.Request) {
 	game := allGames[gameid]
 	allGamesM.Unlock()
 	
-	token := params.Get("token")
+	tokencookie, err := r.Cookie("token")
+	if err != nil {
+		w.WriteHeader(403)
+		fmt.Fprintln(w, "Missing token cookie!:", err)
+		return
+	}
+	token := tokencookie.Value
 	if !game.tokenValid(token) {
 		w.WriteHeader(403)
 		fmt.Fprintln(w, "Invalid token", token)
@@ -133,7 +140,7 @@ func ApiHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Invalid player id", playerid)
 		return
 	}
-	if playerid != game.Turn.Player {
+	if playerid != game.Turn.Player && method != "poll" && method != "state" {
 		w.WriteHeader(403)
 		fmt.Fprintf(w, "It's not your turn, %d. It is currently %d's turn!", playerid, game.Turn.Player)
 		return
@@ -143,7 +150,6 @@ func ApiHandler(w http.ResponseWriter, r *http.Request) {
 	defer game.Unlock()
 	
 	var extra interface{}
-	var err error
 	
 	switch (method) {
 		// Arg: Reader that corresponds to r.Body
