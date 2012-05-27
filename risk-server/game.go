@@ -136,12 +136,12 @@ func (g *Game) SendDelta(w io.Writer, player int, extra interface{}) {
 			continue
 		}
 		
-		fmt.Fprintf(w, "		\"%d\": ", i)
-		enc.Encode(g.Players[i])
 		if !first {
-			fmt.Fprintln(w, ",")
+			fmt.Fprintf(w, ",")
 		}
 		first = false
+		fmt.Fprintf(w, "		\"%d\": ", i)
+		enc.Encode(g.Players[i])
 		
 		g.Players[i].dirty[player] = false
 	}
@@ -153,19 +153,18 @@ func (g *Game) SendDelta(w io.Writer, player int, extra interface{}) {
 			continue
 		}
 		
-		fmt.Fprintf(w, "		\"%d\": ", i)
-		enc.Encode(g.Territories[i])
 		if !first {
-			fmt.Fprintln(w, ",")
+			fmt.Fprintf(w, ",")
 		}
 		first = false
+		fmt.Fprintf(w, "		\"%d\": ", i)
+		enc.Encode(g.Territories[i])
 		
 		g.Territories[i].dirty[player] = false
 	}
 	fmt.Fprintln(w, "	},")
-	fmt.Fprintln(w, "	\"Turn\": {")
+	fmt.Fprintln(w, "	\"Turn\": ")
 	enc.Encode(g.Turn)
-	fmt.Fprintln(w, "	}")
 	fmt.Fprintln(w, "}")
 }
 
