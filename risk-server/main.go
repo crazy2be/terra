@@ -157,7 +157,7 @@ func ApiHandler(w http.ResponseWriter, r *http.Request) {
 		case "poll":
 			extra, err = game.Poll()
 		case "state":
-			game.State(w, r, playerid)
+			game.jsonSerialize(w, playerid, nil, true)
 			return
 		case "attack":
 			extra, err = game.AttackApi(r)

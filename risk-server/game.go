@@ -122,6 +122,10 @@ func (g *Game) tokenValid(token string) bool {
 }
 
 func (g *Game) SendDelta(w io.Writer, player int, extra interface{}) {
+	jsonSerialize(w, player, extra, !DEBUG_MODE)
+}
+
+func (g *Game) jsonSerialize(w io.Writer, player int, extra interface{}, sendDelta bool) {
 	enc := json.NewEncoder(w)
 	fmt.Fprintln(w, "{")
 	fmt.Fprintln(w, "	\"Extra\": {")
@@ -132,7 +136,7 @@ func (g *Game) SendDelta(w io.Writer, player int, extra interface{}) {
 	fmt.Fprintln(w, "	\"Players\": {")
 	first := true
 	for i := range g.Players {
-		if !DEBUG_MODE && !g.Players[i].dirty[player] {
+		if !(sendDelta || g.Players[i].dirty[player]) {
 			continue
 		}
 		
@@ -149,7 +153,7 @@ func (g *Game) SendDelta(w io.Writer, player int, extra interface{}) {
 	fmt.Fprintln(w, "	\"Territories\": {")
 	first = true
 	for i := range g.Territories {
-		if !DEBUG_MODE && !g.Territories[i].dirty[player]{
+		if !(sendDelta || g.Territories[i].dirty[player]) {
 			continue
 		}
 		
@@ -173,5 +177,5 @@ func (g *Game) Poll() (interface{}, error) {
 }
 
 func (g *Game) State(w http.ResponseWriter, r *http.Request, playerid int) {
-	routes.ServeJson(w, g)
+	
 }
