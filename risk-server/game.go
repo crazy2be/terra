@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/bradrydzewski/routes"
 	"encoding/json"
 	"math/rand"
 	"net/http"
@@ -122,7 +121,7 @@ func (g *Game) tokenValid(token string) bool {
 }
 
 func (g *Game) SendDelta(w io.Writer, player int, extra interface{}) {
-	jsonSerialize(w, player, extra, !DEBUG_MODE)
+	g.jsonSerialize(w, player, extra, !DEBUG_MODE)
 }
 
 func (g *Game) jsonSerialize(w io.Writer, player int, extra interface{}, sendDelta bool) {
