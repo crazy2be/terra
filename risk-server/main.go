@@ -41,30 +41,19 @@ func CreateHandler(w http.ResponseWriter, r *http.Request) {
 	allGames[gameid] = InitGame(numplayers, "")
 	allGamesM.Unlock()
 	
-	http.Redirect(w, r, "/join/"+gameid, 302)
-}
-
-func JoinGameUIHandler(w http.ResponseWriter, r *http.Request) {
-	params := r.URL.Query()
-	gameid := params.Get(":id")
-	
-	w.Header().Set("Content-Type", "text/html")
-	fmt.Fprintf(w, `Join this game (id %s) by clicking
-	<form method="post" action="/join/%s">
-		<input type="submit" value="Here!" />
-	</form>`, gameid, gameid)
+	http.Redirect(w, r, "/game/"+gameid+"/play", 302)
 }
 
 func genRandomToken() string {
 	s := ""
 	from := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	for i := 0; i < 20; i++ {
+	for i := 0; i < 30; i++ {
 		s += string(from[rand.Int() % len(from)])
 	}
 	return s
 }
 
-func JoinGameHandler(w http.ResponseWriter, r *http.Request) {
+func GameHandler(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 	gameid := params.Get(":id")
 	
@@ -75,6 +64,13 @@ func JoinGameHandler(w http.ResponseWriter, r *http.Request) {
 	if !exists {
 		w.WriteHeader(404)
 		fmt.Fprintln(w, "No game with id", gameid, "found! Try another id...")
+		return
+	}
+	
+	_, err := verifyToken(game, r)
+	if err == nil {
+		// TODO: Un hard-code this.
+		http.ServeFile(w, r, "webpage/terramain.html")
 		return
 	}
 	
@@ -104,13 +100,20 @@ func JoinGameHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("/game/%s/play", gameid), 302)
 }
 
-func GameHandler(w http.ResponseWriter, r *http.Request) {
-	// TODO: Un hard-code this.
-	http.ServeFile(w, r, "webpage/terramain.html")
-}
-
 var allGamesM sync.Mutex
 var allGames map[string]*Game = make(map[string]*Game, 1)
+
+func verifyToken(game *Game, r *http.Request) (token string, err error) {
+	tokencookie, err := r.Cookie("token")
+	if err != nil {
+		return "", fmt.Errorf("Missing token cookie!: %s", err)
+	}
+	token = tokencookie.Value
+	if !game.tokenValid(token) {
+		return token, fmt.Errorf("Invalid token '%s'", token)
+	}
+	return token, nil
+}
 
 func ApiHandler(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
@@ -121,17 +124,10 @@ func ApiHandler(w http.ResponseWriter, r *http.Request) {
 	game := allGames[gameid]
 	allGamesM.Unlock()
 	
-	tokencookie, err := r.Cookie("token")
+	token, err := verifyToken(game, r)
 	if err != nil {
 		w.WriteHeader(403)
-		fmt.Fprintln(w, "Missing token cookie!:", err)
-		return
-	}
-	token := tokencookie.Value
-	if !game.tokenValid(token) {
-		w.WriteHeader(403)
-		fmt.Fprintln(w, "Invalid token", token)
-		return
+		fmt.Fprintln(w, "Token cookie is invalid:", err)
 	}
 	
 	playerid := game.playerID(token)
@@ -185,9 +181,6 @@ func main() {
 	mux := routes.New()
 	mux.Get("/create", CreateUIHandler)
 	mux.Post("/create", CreateHandler)
-	
-	mux.Get("/join/:id", JoinGameUIHandler)
-	mux.Post("/join/:id", JoinGameHandler)
 	
 	mux.Get("/game/:id/play", GameHandler)
 	mux.Post("/game/:id/api/:method", ApiHandler)
