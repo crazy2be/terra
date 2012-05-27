@@ -127,11 +127,11 @@ func (g *Game) SendDelta(w io.Writer, player int, extra interface{}) {
 func (g *Game) jsonSerialize(w io.Writer, player int, extra interface{}, sendDelta bool) {
 	enc := json.NewEncoder(w)
 	fmt.Fprintln(w, "{")
-	fmt.Fprintln(w, "	\"Extra\": {")
 	if extra != nil {
+		fmt.Fprintf(w, "\"Extra\":")
 		enc.Encode(extra)
+		fmt.Fprintf(w, ",")
 	}
-	fmt.Fprintln(w, "	},")
 	fmt.Fprintln(w, "	\"Players\": {")
 	first := true
 	for i := range g.Players {
