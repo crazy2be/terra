@@ -720,7 +720,7 @@ namespace RiskMapMaker
                 outputHtml.Append(", y : " + countries[x].centerPoint.Y);
                 outputHtml.AppendLine("},");
 
-
+                
                 outputHtml.Append("\t\t\"Coords\": [");
                 for (int y = 0; y < countries[x].polyPoints.Count; y++)
                 {
@@ -730,7 +730,8 @@ namespace RiskMapMaker
                     else
                         outputHtml.Append(countries[x].polyPoints[y].Y);
                 }
-                outputHtml.AppendLine("],");
+                outputHtml.AppendLine("]");
+                
 
 
                 outputHtml.AppendLine("\t\t}, ");
