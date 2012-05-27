@@ -58,8 +58,8 @@ func InitGame(numplayers int, mapfile string) *Game {
 }
 
 func (g *Game) Start() {
-	g.Turn.Player = rand.Int() % len(g.Players)
-	g.Turn.Stage = "placing"
+	g.Turn.Player = (rand.Int() % len(g.Players)) - 1
+	g.NextPlayer()
 }
 
 func (g *Game) NextPlayer() {
