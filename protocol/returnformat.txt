@@ -13,12 +13,12 @@
 		//All territory references use indices of array itself, 
 		//and continents use indices of continent array (???)
 		//players use indeces of Players array
-	"Territories" : [
-		 {"Connections": [40, 2, 1],
+	"Territories" : {
+		 "0": {"Connections": [40, 2, 1],
 			"Continent": 1,
 			"Owner": 1,
 			"Units": 5},
-	]
+	}
 
 	//Present:
 		//Always
