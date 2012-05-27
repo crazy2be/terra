@@ -105,7 +105,7 @@ func JoinGameHandler(w http.ResponseWriter, r *http.Request) {
 
 func GameHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO: Un hard-code this.
-	http.ServeFile(w, r, "webpage/risktesting.html")
+	http.ServeFile(w, r, "webpage/terramain.html")
 }
 
 var allGamesM sync.Mutex
@@ -186,9 +186,9 @@ func main() {
 	mux.Get("/game/:id", GameHandler)
 	mux.Post("/game/:id/api/:method", ApiHandler)
 	
-	http.Handle("/", mux)
 	http.Handle("/assets/", http.FileServer(http.Dir("assets/")))
 	http.Handle("/maps/", http.FileServer(http.Dir("maps/")))
+	http.Handle("/", mux)
 	
 	http.ListenAndServe(":8088", nil)
 }
