@@ -125,7 +125,9 @@ func (g *Game) SendDelta(w io.Writer, player int, extra interface{}) {
 	enc := json.NewEncoder(w)
 	fmt.Fprintln(w, "{")
 	fmt.Fprintln(w, "	\"Extra\": {")
-	enc.Encode(extra)
+	if extra != nil {
+		enc.Encode(extra)
+	}
 	fmt.Fprintln(w, "	},")
 	fmt.Fprintln(w, "	\"Players\": {")
 	for i := range g.Players {
