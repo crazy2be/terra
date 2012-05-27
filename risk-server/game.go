@@ -130,6 +130,7 @@ func (g *Game) SendDelta(w io.Writer, player int, extra interface{}) {
 	}
 	fmt.Fprintln(w, "	},")
 	fmt.Fprintln(w, "	\"Players\": {")
+	first := true
 	for i := range g.Players {
 		if !DEBUG_MODE && !g.Players[i].dirty[player] {
 			continue
@@ -137,12 +138,16 @@ func (g *Game) SendDelta(w io.Writer, player int, extra interface{}) {
 		
 		fmt.Fprintf(w, "		\"%d\": ", i)
 		enc.Encode(g.Players[i])
-		fmt.Fprintln(w, ",")
+		if !first {
+			fmt.Fprintln(w, ",")
+		}
+		first = false
 		
 		g.Players[i].dirty[player] = false
 	}
 	fmt.Fprintln(w, "	},")
 	fmt.Fprintln(w, "	\"Territories\": {")
+	first = true
 	for i := range g.Territories {
 		if !DEBUG_MODE && !g.Territories[i].dirty[player]{
 			continue
@@ -150,14 +155,17 @@ func (g *Game) SendDelta(w io.Writer, player int, extra interface{}) {
 		
 		fmt.Fprintf(w, "		\"%d\": ", i)
 		enc.Encode(g.Territories[i])
-		fmt.Fprintln(w, ",")
+		if !first {
+			fmt.Fprintln(w, ",")
+		}
+		first = false
 		
 		g.Territories[i].dirty[player] = false
 	}
 	fmt.Fprintln(w, "	},")
 	fmt.Fprintln(w, "	\"Turn\": {")
 	enc.Encode(g.Turn)
-	fmt.Fprintln(w, "	},")
+	fmt.Fprintln(w, "	}")
 	fmt.Fprintln(w, "}")
 }
 
