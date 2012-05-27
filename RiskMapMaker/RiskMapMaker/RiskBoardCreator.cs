@@ -669,6 +669,7 @@ namespace RiskMapMaker
 
             StringBuilder outputHtml = new StringBuilder();
 
+            /*
             for(int x = 0; x < countries.Count; x++)
             {
                 //Id
@@ -705,7 +706,37 @@ namespace RiskMapMaker
                 outputHtml.AppendLine();
                 outputHtml.AppendLine();
             }
-            
+            */
+
+            outputHtml.Append("\"Territories\": {");
+
+            for (int x = 0; x < countries.Count; x++)
+            {
+                outputHtml.Append("\t\"" + x.ToString() + "\" : { ");
+
+
+                outputHtml.Append("\t\t\"CenterLocation\": {");
+                outputHtml.Append("x : " + countries[x].centerPoint.X);
+                outputHtml.Append(", y : " + countries[x].centerPoint.Y);
+                outputHtml.AppendLine("},");
+
+
+                outputHtml.Append("\t\t\"Coords\": [");
+                for (int y = 0; y < countries[x].polyPoints.Count; y++)
+                {
+                    outputHtml.Append(countries[x].polyPoints[y].X + ", ");
+                    if (y != countries[x].polyPoints.Count - 1)
+                        outputHtml.Append(countries[x].polyPoints[y].Y + ", ");
+                    else
+                        outputHtml.Append(countries[x].polyPoints[y].Y);
+                }
+                outputHtml.AppendLine("],");
+
+
+                outputHtml.AppendLine("\t\t}, ");
+            }
+
+            outputHtml.AppendLine("}, ");
 
             Clipboard.SetText(outputHtml.ToString());
 
