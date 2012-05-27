@@ -140,7 +140,7 @@ func ApiHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Invalid player id", playerid)
 		return
 	}
-	if playerid != game.Turn.Player {
+	if playerid != game.Turn.Player && method != "poll" && method != "state" {
 		w.WriteHeader(403)
 		fmt.Fprintf(w, "It's not your turn, %d. It is currently %d's turn!", playerid, game.Turn.Player)
 		return
