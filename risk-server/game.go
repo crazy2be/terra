@@ -142,7 +142,6 @@ func (g *Game) SendDelta(w io.Writer, player int, extra interface{}) {
 		first = false
 		fmt.Fprintf(w, "		\"%d\": ", i)
 		enc.Encode(g.Players[i])
-		fmt.Fprintln(w)
 		
 		g.Players[i].dirty[player] = false
 	}
@@ -160,7 +159,6 @@ func (g *Game) SendDelta(w io.Writer, player int, extra interface{}) {
 		first = false
 		fmt.Fprintf(w, "		\"%d\": ", i)
 		enc.Encode(g.Territories[i])
-		fmt.Fprintln(w)
 		
 		g.Territories[i].dirty[player] = false
 	}
