@@ -1,0 +1,284 @@
+<html>
+    <head>    
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>  
+        <script type="text/javascript" src="https://raw.github.com/caleb531/jcanvas/master/builds/5.2.1/jcanvas.js"></script>  
+
+        <style type="text/css">
+            body{-webkit-user-select:none;}
+            #riskmap{position: absolute; top : 10px; left: 10px; z-index:1; }
+            #jcanvas{position: absolute; top : 10px; left: 10px; z-index:2; pointer-events: none; }                        
+        </style>
+
+
+        <!-- global helper functions and variables -->
+        <script type="text/javascript">
+
+            var mapPath = "http://localhost:8088/assets/riskmap_en_small.png";
+
+            var MAP_WIDTH = 800;
+            var MAP_HEIGHT = 600;            
+
+        //ATTENTION! This does not properly transfer arrays, only objects
+        function MergeRecursive(obj1, obj2) {
+            for (var p in obj2) {
+                try {
+                    // Property in destination object set; update its value.
+                    if (obj2[p].constructor == Object) {
+                        obj1[p] = MergeRecursive(obj1[p], obj2[p]);
+
+                    } else {
+                        obj1[p] = obj2[p];                                                
+                    }
+
+                } catch (e) {
+                    // Property in destination object not set; create it and set its value.                
+                    obj1[p] = obj2[p];
+                }
+            }
+            return obj1;
+        }
+
+        //from http://www.w3schools.com/js/js_cookies.asp
+        function getCookie(c_name) {
+            var i, x, y, ARRcookies = document.cookie.split(";");
+            for (i = 0; i < ARRcookies.length; i++) {
+                x = ARRcookies[i].substr(0, ARRcookies[i].indexOf("="));
+                y = ARRcookies[i].substr(ARRcookies[i].indexOf("=") + 1);
+                x = x.replace(/^\s+|\s+$/g, "");
+                if (x == c_name) {
+                    return unescape(y);
+                }
+            }
+        }
+
+        function printNiceBoardState() {
+            var copiedBoard = JSON.parse(JSON.stringify(boardState));
+
+            for (index in copiedBoard.Territories) {
+                delete copiedBoard.Territories[index]["Coords"];
+                delete copiedBoard.Territories[index]["CenterLocation"];
+            }
+
+            console.log(JSON.stringify(copiedBoard));
+        }
+
+        function printFullBoardState() {
+            console.log(JSON.stringify(boardState));
+        }
+
+        </script>
+
+
+        <!-- boardState and custom click data loading -->
+        <script type="text/javascript" src="http://localhost:8088/assets/js/polyBoardState.js">
+                       
+        </script>
+        
+        <!-- main play handlers (not everything!) -->
+        <script type="text/javascript" src="http://localhost:8088/assets/js/inputHandlers.js> 
+        </script>
+
+
+        <!-- data manipulations (technically all should be here, but for now just data loading from server is here) -->
+        <script type="text/javascript">
+            function loadJSONToBoardState(data) {
+                printNiceBoardState();
+
+                MergeRecursive(boardState, JSON.parse(data));
+
+                printNiceBoardState();
+
+                refreshBoard();
+            }
+
+            function poll() {
+                jQuery.post("api/poll", null, loadJSONToBoardState);
+            }
+
+            function state() {
+                jQuery.post("api/state", null, loadJSONToBoardState);
+            }
+
+            function place(countryNumber, placed) {
+                var object = new Object();
+
+                object["Num"] = placed;
+                object["Territory"] = countryNumber; 
+
+                jQuery.post("api/place", JSON.stringify(object), loadJSONToBoardState);
+            }
+
+            function attack(countryAttacker, countryDefender) {
+                var object = new Object();                
+
+                object["From"] = parseInt(countryAttacker);
+                object["To"] = parseInt(countryDefender);
+                object["Dice"] = 3; //TEMP HARDCODED!
+
+                jQuery.post("api/attack", JSON.stringify(object), loadJSONToBoardState);
+            }
+        </script>
+
+
+        <!-- global draw helpers and global variables -->
+        <script type="text/javascript">
+            function drawCircle(centerX, centerY, inRadius, outRadius, insideColor, outsideColor) {
+                var radial = $("canvas").gradient({
+                    x1: centerX,
+                    y1: centerY,
+                    x2: centerX,
+                    y2: centerY,
+                    r1: inRadius, r2: outRadius,
+                    c1: insideColor,
+                    c2: outsideColor
+                });
+                $("canvas").drawArc({
+                    fillStyle: radial,
+                    x: centerX, y: centerY,
+                    radius: outRadius
+                });
+            }
+
+            function drawText(text, xPos, yPos) {
+                $("canvas").drawText({
+                    fillStyle: "#9cf",
+                    strokeStyle: "#25a",
+                    strokeWidth: 4,
+                    x: xPos, y: yPos,
+                    font: "36pt Verdana, sans-serif",
+                    text: text
+                });
+            }
+        </script>
+
+        <!-- main temporary draw handlers -->
+        <script type="text/javascript">
+            function territoryMouseOver(countryNumber, centerX, centerY) {                
+                refreshBoard();           
+                var radial = $("canvas").gradient({
+                    x1: centerX, y1: centerY,
+                    x2: centerX, y2: centerY,
+                    r1: 10, r2: 30,
+                    c1: "rgba(255, 0, 255, 0.75)",
+                    c2: "rgba(255, 0, 255, 0)"
+                });
+                $("canvas").drawArc({
+                    fillStyle: radial,
+                    x: centerX, y: centerY,
+                    radius: 30
+                });                
+            }
+
+            function territoryMouseOut(countryNumber, centerX, centerY) {
+                //Not needed now that we call refreshBoard
+                //$("canvas").clearCanvas({
+                //    x: centerX, y: centerY,
+                //    radius: 30
+                //});                
+                refreshBoard();
+            }
+        </script>
+
+        <!-- redraw all handlers -->
+        <script type="text/javascript">
+            function refreshBoard() {
+                $("canvas").clearCanvas({
+                    x: 0, y: 0,
+                    width: MAP_WIDTH,
+                    height: MAP_HEIGHT,
+                    fromCenter: false
+                });
+                for (index in boardState.Territories) {
+                    var centX = boardState.Territories[index]["CenterLocation"].x;
+                    var centY = boardState.Territories[index]["CenterLocation"].y;
+
+                    if (boardState.Territories[index]["SelectedState"] == "selected") {
+                        drawCircle(
+                        boardState.Territories[index]["CenterLocation"].x,
+                        boardState.Territories[index]["CenterLocation"].y,
+                        10, 30, "rgba(255, 0, 255, 0.75)", "rgba(255, 0, 255, 0)");
+                    }
+
+                    drawText(boardState.Territories[index]["Men"], centX, centY); 
+                }
+            }
+        </script>
+
+
+
+        <!-- all dynamically generated html functions-->
+        <script type="text/javascript">            
+            function generateDynamicHTML() {
+                //Dynamically loads the image map
+                var mapeventsHTML = document.getElementsByName("mapevents")[0];
+
+                for (index in boardState.Territories) {
+                    var myArea = document.createElement('area');                    
+
+                    myArea.setAttribute('class', 'territory');
+                    myArea.setAttribute('shape', 'poly');
+                    myArea.setAttribute('id', index);
+                    myArea.setAttribute('coords', boardState.Territories[index].Coords);
+                    myArea.setAttribute('onmouseover', 'territoryMouseOver(' +index+ ', ' +
+                    boardState.Territories[index].CenterLocation.x + ', ' +
+                    boardState.Territories[index].CenterLocation.y + ')');
+
+                    myArea.setAttribute('onmouseout', 'territoryMouseOut(' + index + ', ' +
+                    boardState.Territories[index].CenterLocation.x + ', ' +
+                    boardState.Territories[index].CenterLocation.y + ')');
+
+                    myArea.setAttribute('onclick', 'territoryClicked(' + index + ')');
+
+                    mapeventsHTML.appendChild(myArea);
+
+                    //console.log(boardState.Territories[index].Coords);
+                    //console.log(boardState.Territories[index]);
+                }
+            }
+        </script>
+
+
+        <!-- on page load (just call other stuff in here) -->
+        <script type="text/javascript">
+            function pageLoaded() {
+                mapimage.src = mapPath;
+                generateDynamicHTML();
+            }  
+        </script>
+
+        <!-- global entry point (DON'T RUN ANYTHING GLOBALLY ANYWHERE BUT HERE!) -->
+        <script type="text/javascript">
+            //All global variables! (besides the pseudo variable draw functions)
+            
+
+            MergeRecursive(boardState, terrClickData);
+
+            $(document).ready(pageLoaded);
+
+            state();
+        </script>
+    </head>
+
+    <body>
+    <div class="result">
+
+    </div>
+
+        <canvas id="jcanvas" width="800px" height="600px" onclick="passClickToRiskMap"></canvas>
+        <img id="mapimage" width="800px" height="600px" alt="Terra Map" usemap="#mapevents"/>
+
+        <map name="mapevents" id="mapevents">
+
+<!-- The format (may be outdated) (then it is filled with javascript)
+<area class='territory' shape='poly' id=1
+
+onclick='territoryClicked(id)'
+onmouseover='territoryMousedOver(id, data-centerx, data-centery)'
+onmouseout='territoryMouseOut(id, data-centerx, data-centery)'
+coords='721,296,722,293,724,289,725,285,726,282,727,280,727,273,727,272,727,266,727,261,728,258,710,253,711,249,708,246,707,243,706,241,701,234,695,231,691,230,691,226,675,219,674,218,672,213,663,212,660,209,649,212,649,216,639,220,636,214,627,229,637,234,643,255,648,264,655,265,656,261,659,259,661,259,663,263,663,265,665,268,667,270,673,270,675,271,677,266,680,265,680,271,687,271,689,268,695,268,699,271,703,275,705,276,707,277,707,279,709,283,709,289,712,291,715,293,717,293,721,296,'/>
+-->
+
+            
+        </map>
+    </body>
+</html>
