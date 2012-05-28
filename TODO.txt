@@ -1,0 +1,9 @@
+Quentin:
+	Make attack prompt
+	Smart country selection clicking
+	Move prompt and dialog takeover
+	Troop number color
+	Top status text
+	Common move output
+	Bottom player colors
+	Dice display

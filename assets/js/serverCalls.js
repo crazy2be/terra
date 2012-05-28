@@ -55,12 +55,14 @@ function state() {
     jQuery.post("api/state", null, loadJSONToBoardState);
 }
 
+var newStuff = 0;
+
 function move(countryFrom, countryTo, menAmount) {
     var object = new Object();
 
-    object["From"] = parseInt(countryAttacker);
-    object["To"] = parseInt(countryDefender);
-    object["Num"] = parseInt(menAmount); //TEMP HARDCODED!
+    object["From"] = parseInt(countryFrom);
+    object["To"] = parseInt(countryTo);
+    object["Num"] = parseInt(menAmount);
 
     jQuery.post("api/move", JSON.stringify(object), loadJSONToBoardState);
 }

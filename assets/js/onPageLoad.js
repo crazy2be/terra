@@ -36,3 +36,9 @@
 
 /// <reference path="http://gettopup.com/releases/latest/top_up-min.js">
 
+setTimeout(refreshTimer, 1000);
+
+function refreshTimer() {
+    refreshBoard();
+    setTimeout(refreshTimer, 1000);
+}

@@ -36,23 +36,13 @@
 
 
 function territoryMouseOver(countryNumber, centerX, centerY) {
-    refreshBoard();
     var curPlayer = getOurPlayerNumber();
 
     var owner = boardState.Territories[countryNumber]["Owner"];
+    
+    boardState.Territories[countryNumber]["Mouseover"] = true;    
 
-    if (curPlayer == owner) {
-        drawStandardFadeoutCircle(
-                    boardState.Territories[countryNumber]["CenterLocation"].x,
-                    boardState.Territories[countryNumber]["CenterLocation"].y,
-                    30, ourSelectedColor, ourSelectedColorAlpha);
-    }
-    else {
-        drawStandardFadeoutCircle(
-                    boardState.Territories[countryNumber]["CenterLocation"].x,
-                    boardState.Territories[countryNumber]["CenterLocation"].y,
-                    30, enemySelectedColor, enemySelectedColorAlpha);
-    }       
+    refreshBoard();        
 }
 
 function territoryMouseOut(countryNumber, centerX, centerY) {
@@ -60,6 +50,7 @@ function territoryMouseOut(countryNumber, centerX, centerY) {
     //$("canvas").clearCanvas({
     //    x: centerX, y: centerY,
     //    radius: 30
-    //});                
+    //});          
+    boardState.Territories[countryNumber]["Mouseover"] = false;      
     refreshBoard();
 }

@@ -37,13 +37,24 @@
 //Every action should be funnelled here, which validates and maybe manipulates data
 
 function placeCall(countryToPlace) {
-    place(countryNumber, 10); //TEMP HARDCODED
+    place(countryToPlace, 10); //TEMP HARDCODED
 }
 
 function attackCall(attackerCountry, defenderCountry) {
     attack(attackerCountry, defenderCountry);
 }
 
+//These are bad... but it is late
+var moveFromTEMP;
+var moveToTEMP;
 function moveCall(moveFrom, moveTo) {
+    moveFromTEMP = moveFrom;
+    moveToTEMP = moveTo;
     //We need to query the user for movement information (like where they want to move to)
+    doDialog(moveCallConfirmed, "Enter units to move");
+}
+function moveCallConfirmed(menCount) {
+    if (menCount != null) {        
+        move(moveFromTEMP, moveToTEMP, menCount);
+    }
 }

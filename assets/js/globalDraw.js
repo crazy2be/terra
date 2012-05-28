@@ -38,7 +38,7 @@
 var ourSelectedColor = 'rgba(0, 0, 255, 0.75)'; var ourSelectedColorAlpha = 'rgba(0, 0, 255, 0)';
 var enemySelectedColor = 'rgba(255, 0, 0, 0.75)'; var enemySelectedColorAlpha = 'rgba(255, 0, 0, 0)';
 
-var dialogColorOne = 'rgba(0, 0, 255, 1)'; var dialogColorTwo = 'rgba(0, 255, 255, 1)';
+var dialogColorOne = 'rgba(0, 255, 255, 0.7)'; var dialogColorTwo = 'rgba(0, 205, 255, 0)';
 
 function drawCircle(centerX, centerY, inRadius, outRadius, insideColor, outsideColor) {
     var radial = $("canvas").gradient({
@@ -91,7 +91,7 @@ function drawGradientBox(xPos, yPos, widthBox, heightBox, colorOne, colorTwo) {
         x1: xPos, y1: yPos,
         x2: xPos + widthBox, y2: yPos + heightBox,
         c1: colorOne,
-        c2: colorTwo        
+        c2: colorOne        
     });
 
     var radial = $("canvas").gradient({
@@ -104,11 +104,26 @@ function drawGradientBox(xPos, yPos, widthBox, heightBox, colorOne, colorTwo) {
         c2: colorTwo
     });
 
+    var linearTwo = $("canvas").gradient({
+        x1: xPos, y1: yPos,
+        x2: xPos + widthBox, y2: yPos + heightBox,
+        c1: colorTwo,
+        c2: colorTwo
+    });
+
     $("canvas").drawRect({
         fillStyle: linear,
         x: xPos, y: yPos,
         width: widthBox,
         height: heightBox,
+        fromCenter: false
+    });
+
+    $("canvas").drawRect({
+        fillStyle: linear,
+        x: xPos + 10, y: yPos + 10,
+        width: widthBox - 20,
+        height: heightBox - 20,
         fromCenter: false
     });
 }
