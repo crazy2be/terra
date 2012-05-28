@@ -189,5 +189,9 @@ func main() {
 	http.Handle("/maps/", http.FileServer(http.Dir(".")))
 	http.Handle("/", mux)
 	
-	http.ListenAndServe(":8088", nil)
+	err := http.ListenAndServe(":8088", nil)
+	if err != nil {
+		fmt.Println("Unable to start server:", err)
+		os.Exit(1)
+	}
 }
