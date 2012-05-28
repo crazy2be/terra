@@ -51,8 +51,8 @@ function moveCall(moveFrom, moveTo) {
     //We need to query the user for movement information (like where they want to move to)
     doDialog(moveCallConfirmed, "Enter units to move");
 }
-function moveCallConfirmed(menCount) {        
-    if (menCount != null) {
+function moveCallConfirmed(menCount) {
+    if (menCount != null) {        
         move(moveFromTEMP, moveToTEMP, menCount);
     }
 }

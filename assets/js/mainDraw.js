@@ -71,6 +71,22 @@ function refreshBoard() {
                         30, enemySelectedColor, enemySelectedColorAlpha);
             }
         }
+
+        if (curPlace["Mouseover"] != null &&
+        curPlace["Mouseover"] == true) {
+            if (curPlayer == owner) {
+                drawStandardFadeoutCircle(
+                    curPlace["CenterLocation"].x,
+                    curPlace["CenterLocation"].y,
+                    30, ourSelectedColor, ourSelectedColorAlpha);
+            }
+            else {
+                drawStandardFadeoutCircle(
+                    curPlace["CenterLocation"].x,
+                    curPlace["CenterLocation"].y,
+                    30, enemySelectedColor, enemySelectedColorAlpha);
+            }
+        }
     }
 
     //if (boardState["PromptBox"]["visible"]) {

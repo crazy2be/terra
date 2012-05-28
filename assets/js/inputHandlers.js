@@ -41,7 +41,7 @@ function territoryClicked(countryNumber) {
 
     var curPlayer = getOurPlayerNumber();
 
-    if (playerTurn == curPlayer) {
+    if (playerTurn == curPlayer) {        
         if (playState == "placing") {
             placeCall(countryNumber);
         }
@@ -55,7 +55,7 @@ function territoryClicked(countryNumber) {
             }
 
             //Clicked on the territory twice, they probably want to unselect it
-            if (previouslySelectedIndex == countryNumber) {
+            if (previouslySelectedIndex == countryNumber) {                
                 delete boardState.Territories[previouslySelectedIndex]["SelectedState"];
             }
             else {                                

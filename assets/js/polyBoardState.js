@@ -58,7 +58,8 @@ var boardState = {
 			//Client side
 			"Coords" : [721, 296, 722, 293, 735, 242, 737, 222, 734, 217, 720, 202],
 			"CenterLocation": {x : 692.0067, y : 190.1809},
-			"SelectState" : "selected"
+			"SelectState" : "selected",
+            "Mouseover" : false
 			},
 		
 

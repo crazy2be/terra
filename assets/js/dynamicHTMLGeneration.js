@@ -72,7 +72,7 @@ function generateDynamicHTML() {
     });
 
     $("#dialogbuttonyes").click(closeDialogYes);
-    $("#dialogbuttonyes").click(closeDialogNo);
+    $("#dialogbuttonno").click(closeDialogNo);
 
     //alert();
     
@@ -80,7 +80,7 @@ function generateDynamicHTML() {
     //$( "input:submit, a, button" ).button();
 }
 
-function closeDialogYes(state) {    
+function closeDialogYes(state) {
     boardState["PromptBox"]["result"] = "yes";    
     $("#dialog").dialog('close');
 }
@@ -91,8 +91,8 @@ function closeDialogNo() {
 }
 
 
-function dialogClosed() {    
-    if (isFunction(boardState["PromptBox"]["callback"])) {
+function dialogClosed() {
+    if (isFunction(boardState["PromptBox"]["callback"])) {        
         if (boardState["PromptBox"]["result"] == "yes") {            
             boardState["PromptBox"]["callback"]($("textarea#dialogtextboxarea").val());
         }

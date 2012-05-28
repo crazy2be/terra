@@ -40,4 +40,5 @@ setTimeout(refreshTimer, 1000);
 
 function refreshTimer() {
     refreshBoard();
+    setTimeout(refreshTimer, 1000);
 }
