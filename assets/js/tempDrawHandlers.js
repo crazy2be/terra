@@ -36,12 +36,14 @@
 
 
 function territoryMouseOver(countryNumber, centerX, centerY) {
-    refreshBoard();
     var curPlayer = getOurPlayerNumber();
 
     var owner = boardState.Territories[countryNumber]["Owner"];
 
-    boardState.Territories[countryNumber]["Mouseover"] = true;        
+    console.log("moved over set");
+    boardState.Territories[countryNumber]["Mouseover"] = true;    
+
+    refreshBoard();        
 }
 
 function territoryMouseOut(countryNumber, centerX, centerY) {

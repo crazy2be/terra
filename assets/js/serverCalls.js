@@ -60,8 +60,6 @@ var newStuff = 0;
 function move(countryFrom, countryTo, menAmount) {
     var object = new Object();
 
-    alert(menAmount);
-
     object["From"] = parseInt(countryFrom);
     object["To"] = parseInt(countryTo);
     object["Num"] = parseInt(menAmount);

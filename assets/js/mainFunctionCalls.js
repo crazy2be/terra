@@ -47,7 +47,9 @@ function attackCall(attackerCountry, defenderCountry) {
 //These are bad... but it is late
 var moveFromTEMP;
 var moveToTEMP;
-function moveCall(moveFrom, moveTo) {             
+function moveCall(moveFrom, moveTo) {
+    moveFromTEMP = moveFrom;
+    moveToTEMP = moveTo;
     //We need to query the user for movement information (like where they want to move to)
     doDialog(moveCallConfirmed, "Enter units to move");
 }
