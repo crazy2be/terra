@@ -53,8 +53,11 @@
 
 
         <!-- wrappers on server calls so we can call them directly-->
-        <script type="text/javascript" src="http://localhost:8088/assets/js/serverCalls.js"></script>7
+        <script type="text/javascript" src="http://localhost:8088/assets/js/serverCalls.js"></script>
         <!-- on page load (just call other stuff in here) -->
+        <script type="text/javascript" src="http://localhost:8088/assets/js/onPageLoad.js">
+        </script>
+
         <script type="text/javascript">
         //Moved here to make it easier to debug, as autocomplete is always full here
             function pageLoaded() {
