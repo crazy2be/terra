@@ -1,3 +1,9 @@
+<meta http-equiv="cache-control" content="max-age=0" />
+<meta http-equiv="cache-control" content="no-cache" />
+<meta http-equiv="expires" content="0" />
+<meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+<meta http-equiv="pragma" content="no-cache" />
+
 <html>
     <head>    
         <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>  
@@ -6,12 +12,16 @@
         <script type="text/javascript" src="http://gettopup.com/releases/latest/top_up-min.js"></script>
 
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.js"></script>
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.8.20/themes/base/jquery-ui.css" type="text/css" media="all" />
 
         <style type="text/css"> 
             body{-webkit-user-select:none;}
-            #riskmap{position: absolute; top : 10px; left: 10px; z-index:1; }
-            #jcanvas{position: absolute; top : 10px; left: 10px; z-index:2; pointer-events: none; }
-            #dialog{position: absolute; top : 700px; left: 100px; z-index:3; }
+            #mapimage{position: fixed; top : 50px; left: 50px; z-index:1; }
+            #jcanvas{position: fixed; top : 50px;  left: 50px; z-index:2; pointer-events: none; }            
+            
+            #dialogtextboxarea{margin : 5; width: 255;  height: 55%; z-index:50; }
+            #dialogbuttonyes{ margin : 5; width: 120;  height: 25%; z-index:50; }
+            #dialogbuttonno{ margin : 5; width: 120;  height: 25%; z-index:50; }
         </style>
 
 
@@ -43,15 +53,13 @@
 
 
         <!-- wrappers on server calls so we can call them directly-->
-        <script type="text/javascript" src="http://localhost:8088/assets/js/serverCalls.js"></script>
-
+        <script type="text/javascript" src="http://localhost:8088/assets/js/serverCalls.js"></script>7
         <!-- on page load (just call other stuff in here) -->
         <script type="text/javascript">
         //Moved here to make it easier to debug, as autocomplete is always full here
             function pageLoaded() {
                 mapimage.src = mapPath;
-                generateDynamicHTML();        
-                        
+                generateDynamicHTML();                                 
             }  
         </script>
 
@@ -63,12 +71,19 @@
     </head>
 
     <body>
-                  
+                 
+        <div name="dialog" id="dialog" title="UNFILLED">	    
+        <textarea id='dialogtextboxarea'></textarea>
+        <button name='dialogbuttonyes' id='dialogbuttonyes'>Confirm</button>
+        <button name='dialogbuttonno' id='dialogbuttonno'>Cancel</button>
+        </div>
+
+                          
         <canvas id="jcanvas" width="800px" height="600px" onclick="passClickToRiskMap"></canvas>
         <img id="mapimage" width="800px" height="600px" alt="Terra Map" usemap="#mapevents"/>
 
         <map name="mapevents" id="mapevents">
-
+        
 <!-- The format (may be outdated) (then it is filled with javascript)
 <area class='territory' shape='poly' id=1
 

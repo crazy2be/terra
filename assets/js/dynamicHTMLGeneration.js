@@ -36,6 +36,7 @@
 
 
 function generateDynamicHTML() {
+
     //Dynamically loads the image map    
     var mapeventsHTML = document.getElementsByName("mapevents")[0];
 
@@ -58,7 +59,52 @@ function generateDynamicHTML() {
 
         mapeventsHTML.appendChild(myArea);
 
-        //console.log(boardState.Territories[index].Coords);
-        //console.log(boardState.Territories[index]);
+
     }
+    
+
+    
+    $("#dialog").dialog({
+        width : 300,
+        height : 200,
+        close: dialogClosed,     
+        autoOpen : false   
+    });
+
+    $("#dialogbuttonyes").click(closeDialogYes);
+    $("#dialogbuttonyes").click(closeDialogNo);
+
+    //alert();
+    
+
+    //$( "input:submit, a, button" ).button();
+}
+
+function closeDialogYes(state) {    
+    boardState["PromptBox"]["result"] = "yes";    
+    $("#dialog").dialog('close');
+}
+
+function closeDialogNo() {
+    boardState["PromptBox"]["result"] = "no";    
+    $("#dialog").dialog('close');
+}
+
+
+function dialogClosed() {    
+    if (isFunction(boardState["PromptBox"]["callback"])) {
+        if (boardState["PromptBox"]["result"] == "yes") {            
+            boardState["PromptBox"]["callback"]($("textarea#dialogtextboxarea").val());
+        }
+        else {
+            boardState["PromptBox"]["callback"](null);
+        }
+    }
+}
+
+function doDialog(callBack, name) {
+    $("#dialog").dialog({title:name});
+    $("div#dialog")["title"] = name;
+    boardState["PromptBox"]["callback"] = callBack;
+    $("#dialog").dialog('open');
 }

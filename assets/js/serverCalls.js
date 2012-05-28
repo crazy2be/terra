@@ -58,8 +58,8 @@ function state() {
 function move(countryFrom, countryTo, menAmount) {
     var object = new Object();
 
-    object["From"] = parseInt(countryAttacker);
-    object["To"] = parseInt(countryDefender);
+    object["From"] = parseInt(countryFrom);
+    object["To"] = parseInt(countryTo);
     object["Num"] = parseInt(menAmount); //TEMP HARDCODED!
 
     jQuery.post("api/move", JSON.stringify(object), loadJSONToBoardState);

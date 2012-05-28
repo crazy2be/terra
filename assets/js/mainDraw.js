@@ -73,8 +73,9 @@ function refreshBoard() {
         }
     }
 
-    if (boardState["PromptBox"]["visible"]) {
-        drawGradientBox(boardState["PromptBox"]["xPos"], boardState["PromptBox"]["yPos"],
-            boardState["PromptBox"]["width"], boardState["PromptBox"]["height"], dialogColorOne, dialogColorTwo);
-    }
+    //if (boardState["PromptBox"]["visible"]) {
+        
+        //drawGradientBox(boardState["PromptBox"]["xPos"], boardState["PromptBox"]["yPos"],
+          //  boardState["PromptBox"]["width"], boardState["PromptBox"]["height"], dialogColorOne, dialogColorTwo);
+    //}
 }

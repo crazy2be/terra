@@ -58,24 +58,24 @@ function territoryClicked(countryNumber) {
             if (previouslySelectedIndex == countryNumber) {
                 delete boardState.Territories[previouslySelectedIndex]["SelectedState"];
             }
-            else {                
-                var owner = boardState.Territories[previouslySelectedIndex]["Owner"];
-
-                //They probably want to move
-                if (owner == curPlayer) {
-                    moveCall(previouslySelectedIndex, countryNumber);
-                }
-                else {
-                    //Call attack
-                    if (previouslySelectedIndex != null) {
-                        attackCall(previouslySelectedIndex, countryNumber);
+            else {                                
+                //Call attack
+                if (previouslySelectedIndex != null) {
+                    var owner = boardState.Territories[previouslySelectedIndex]["Owner"];
+                    
+                    //They probably want to move
+                    if (owner == curPlayer) {                                              
+                        moveCall(previouslySelectedIndex, countryNumber);
                     }
                     else {
-                        //Set it as selected
-                        delete boardState.Territories[previouslySelectedIndex];
-                        boardState.Territories[countryNumber]["SelectedState"] = "selected";
+                        attackCall(previouslySelectedIndex, countryNumber);
                     }
                 }
+                else {                 
+                    //Set it as selected
+                    delete boardState.Territories[previouslySelectedIndex];
+                    boardState.Territories[countryNumber]["SelectedState"] = "selected";                    
+                }                
             }                 
         }                    
     }

@@ -89,17 +89,9 @@ var boardState = {
 
     
 	//Client side additions:
-    "PromptBox" : {
-        "visible" : true,        
-        "result" : "yes", //"cancel"
-        "resultData" : "only filled in before call back",
-        "callback" : function() { alert("fill in callback!"); },
-        "xPos" : 200,
-        "yPos" : 200,
-        "width" : 300,
-        "height" : 100,
-        "colorOne" : 'rbga(255, 255, 0, 1)',
-        "colorTwo" : 'rbga(255, 255, 0, "1")'
+    "PromptBox" : {        
+        "result" : "yes", //"cancel"        
+        "callback" : function(input) { alert("fill in callback! data though is:" + input); }
     }
     
 };              
