@@ -73,9 +73,7 @@ function refreshBoard() {
         }
 
         if (curPlace["Mouseover"] != null &&
-        curPlace["Mouseover"] == true) {
-
-            console.log("moved over recieved");
+        curPlace["Mouseover"] == true) {            
             if (curPlayer == owner) {
                 drawStandardFadeoutCircle(
                     curPlace["CenterLocation"].x,
