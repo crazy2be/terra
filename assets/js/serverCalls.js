@@ -40,7 +40,7 @@ function poll() {
     callServer("api/poll");    
 }
 
-function state() {
+function getState() {
     callServer("api/state");    
 }
 

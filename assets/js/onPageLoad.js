@@ -3,9 +3,11 @@
 /// <reference path="https://raw.github.com/caleb531/jcanvas/master/builds/5.2.1/jcanvas.js"></script>
 
 
-function pageLoaded2() {
+function pageLoaded() {
     setTimeout(refreshTimer, 1000);
-    
+    getState();
+    mapimage.src = mapPath;
+    generateDynamicHTML();
 }
 
 function refreshTimer() {

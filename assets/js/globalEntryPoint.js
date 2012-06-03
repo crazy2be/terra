@@ -6,6 +6,5 @@
 MergeRecursive(boardState, terrClickData);
 
 $(document).ready(pageLoaded);
-$(document).ready(pageLoaded2);
 
 state();
