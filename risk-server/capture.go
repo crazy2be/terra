@@ -9,20 +9,20 @@ type CaptureData struct {
 	Num int // Number of armies to move into captured territory. Must be >= g.Attack.Dice.
 }
 
-func (g *Game) CaptureApi(r *http.Request) error {
+func (g *Game) CaptureApi(r *http.Request) (interface{}, error) {
 	var cd CaptureData
 	
 	err := decjson(r.Body, &cd)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	
 	err = g.Capture(cd.Num)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	
-	return nil
+	return nil, nil
 }
 
 func (g *Game) Capture(num int) error {

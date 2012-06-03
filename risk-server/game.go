@@ -48,9 +48,9 @@ func InitGame(numplayers int, mapfile string) *Game {
 	g := new(Game)
 	g.Turn.Player = -1
 	g.Turn.Stage = "waiting for players"
-	// TODO: Unserialize map data from JSON file here
 	g.Players = make([]Player, 0, numplayers)
 	err := g.LoadMap(numplayers, mapfile)
+	// TODO: Return error
 	if err != nil {
 		panic(err)
 	}

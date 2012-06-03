@@ -154,12 +154,6 @@ func ApiHandler(w http.ResponseWriter, r *http.Request) {
 	var extra interface{}
 	
 	switch (method) {
-		// Arg: Reader that corresponds to r.Body
-		// Actually could just be an object if we already
-		// Know how to deserialize it.
-		// Returns "extra" object and error
-		// if error not nil, show 500 page with error
-		// else print json delta with extra object.
 		case "poll":
 			// Do nothing
 		case "attack":
@@ -169,7 +163,7 @@ func ApiHandler(w http.ResponseWriter, r *http.Request) {
 		case "move":
 			extra, err = game.MoveApi(r)
 		case "capture":
-			err = game.CaptureApi(r)
+			extra, err = game.CaptureApi(r)
 	}
 	if err != nil {
 		w.WriteHeader(500)

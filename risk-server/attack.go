@@ -38,15 +38,15 @@ func (g *Game) AttackApi(r *http.Request) (extra AttackResp, err error) {
 	ar.AttDice = attdice
 	ar.DefDice = defdice
 	if g.Territories[ad.To].Men == 0 {
-		g.Turn.Attack = &AttackData
+		g.Turn.Attack = &ad
 	}
 	
 	return ar, nil
 }
 
 func (g *Game) Attack(from int, to int, adice int) (attdice []int, defdice []int, err error) {
-	if g.Turn.MenLeft != 0 {
-		err = fmt.Errorf("You already won your battle against country %d, now you have to move men (minimum %d) there!", g.Turn.LastAttacked, g.MenLeft)
+	if g.Turn.Attack != nil {
+		err = fmt.Errorf("You already won your battle against country %d, now you have to move men (minimum %d) there!", g.Turn.Attack.To, g.Turn.Attack.Dice)
 		return
 	}
 	
