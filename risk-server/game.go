@@ -136,7 +136,7 @@ func (g *Game) jsonSerialize(w io.Writer, player int, extra interface{}, sendDel
 	fmt.Fprintln(w, "	\"Players\": {")
 	first := true
 	for i := range g.Players {
-		if !(sendDelta || g.Players[i].dirty[player]) {
+		if sendDelta || !g.Players[i].dirty[player] {
 			continue
 		}
 		
@@ -153,7 +153,7 @@ func (g *Game) jsonSerialize(w io.Writer, player int, extra interface{}, sendDel
 	fmt.Fprintln(w, "	\"Territories\": {")
 	first = true
 	for i := range g.Territories {
-		if !(sendDelta || g.Territories[i].dirty[player]) {
+		if sendDelta || !g.Territories[i].dirty[player] {
 			continue
 		}
 		

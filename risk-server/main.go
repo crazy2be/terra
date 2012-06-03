@@ -121,13 +121,20 @@ func ApiHandler(w http.ResponseWriter, r *http.Request) {
 	method := params.Get(":method")
 	
 	allGamesM.Lock()
-	game := allGames[gameid]
+	game, exists := allGames[gameid]
 	allGamesM.Unlock()
+	
+	if !exists {
+		w.WriteHeader(404)
+		fmt.Fprintln(w, "No game with that ID found!")
+		return
+	}
 	
 	token, err := verifyToken(game, r)
 	if err != nil {
 		w.WriteHeader(403)
 		fmt.Fprintln(w, "Token cookie is invalid:", err)
+		return
 	}
 	
 	playerid := game.playerID(token)
@@ -142,7 +149,7 @@ func ApiHandler(w http.ResponseWriter, r *http.Request) {
 	
 	if method == "state" {
 		// TODO: Error checking
-		game.jsonSerialize(w, playerid, nil, true)
+		game.jsonSerialize(w, playerid, nil, false)
 		return
 	}
 	if playerid != game.Turn.Player && method != "poll" {
