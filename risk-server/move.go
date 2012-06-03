@@ -29,9 +29,9 @@ func (g *Game) Move(from, to, num int) error {
 	if t[from].Owner != g.Turn.Player {
 		return fmt.Errorf("Player %d is not allowed to move men from territory %d, as it is owned by player %d.", g.Turn.Player, from, t[from].Owner)
 	}
-	if t[to].Owner != g.Turn.Player {
+	if t[to].Owner != g.Turn.Player && g.Turn.MenLeft == 0 {
 		return fmt.Errorf("Player %d is not allowed to move men to territory %d, as it is owned by player %d.", g.Turn.Player, to, t[to].Owner)
-	}
+	}            
 	if !t[from].Connected(to) {
 		return fmt.Errorf("Country %d is not connected to country %d, unable to move troops!", from, to)
 	}
