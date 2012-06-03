@@ -16,6 +16,9 @@ function refreshBoard() {
         fromCenter: false
     });
 
+    $("canvas").clearCanvas();    
+    $("canvas").loadCanvas();
+
     //get data
     var curPlayer = getOurPlayerNumber();
 
@@ -89,4 +92,7 @@ function refreshBoard() {
     $("#curstage").text(boardState["Turn"]["Stage"]);
     $("#curstate").text(boardState["Turn"]["State"]);
     $("#menleft").text(boardState["Turn"]["MenLeft"]);
+
+    $("canvas").saveCanvas();
+    $("canvas").restoreCanvas();
 }

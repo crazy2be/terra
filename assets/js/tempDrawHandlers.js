@@ -3,7 +3,7 @@
 /// <reference path="https://raw.github.com/caleb531/jcanvas/master/builds/5.2.1/jcanvas.js"></script>
 
 
-function territoryMouseOver(countryNumber, centerX, centerY) {
+function territoryMouseOver(countryNumber, centerX, centerY) {    
     if (getUrlVars()["mouseover"] == "true")
         log("mouseover" + (new Date()).getMilliseconds(), "test");
 
