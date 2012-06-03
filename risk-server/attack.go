@@ -32,11 +32,11 @@ func (g *Game) AttackApi(r *http.Request) (extra AttackResp, err error) {
 	
 	attdice, defdice, err := g.Attack(ad.From, ad.To, ad.Dice)
 	if err != nil {
-		return ar, nil
+		return ar, err
 	}
+	
 	ar.AttDice = attdice
 	ar.DefDice = defdice
-	
 	return ar, nil
 }
 
