@@ -3,37 +3,6 @@
 /// <reference path="https://raw.github.com/caleb531/jcanvas/master/builds/5.2.1/jcanvas.js"></script>
 /// <reference path="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.js">
 
-// global helper functions and variables -->
-/// <reference path="http://localhost:8088/assets/js/global.js"></script>
-// boardState and custom click data loading -->
-/// <reference path="http://localhost:8088/assets/js/polyBoardState.js"></script>               
-// handlers from HTML events -->
-/// <reference path="http://localhost:8088/assets/js/inputHandlers.js"> </script>
-
-// wrappers for calls to the server -->
-/// <reference path="http://localhost:8088/assets/js/serverCalls.js"></script>
-
-// draw functions, and maybe some global variables related to drawing -->
-/// <reference path="http://localhost:8088/assets/js/globalDraw.js"> </script>
-// main temporary draw handlers -->
-/// <reference path="http://localhost:8088/assets/js/tempDrawHandlers.js"></script>
-// redraw all handlers -->
-/// <reference path="http://localhost:8088/assets/js/mainDraw.js"></script>
-
-// all dynamically generated html functions-->
-/// <reference path="http://localhost:8088/assets/js/dynamicHTMLGeneration.js"></script>
-
-// wrappers on server calls so we can call them directly-->
-/// <reference path="http://localhost:8088/assets/js/serverCalls.js"></script>
-
-// on page load (just call other stuff in here) -->
-/// <reference path="http://localhost:8088/assets/js/onPageLoad.js"></script>
-
-// main game function calls
-/// <reference path="http://localhost:8088/assets/js/mainFunctionCalls.js"> </script>
-
-// global entry point (DON'T RUN ANYTHING GLOBALLY ANYWHERE BUT HERE!) -->
-/// <reference path="http://localhost:8088/assets/js/globalEntryPoint.js"> </script>
 
 function refreshBoard() {
     //Clear current canvas
@@ -55,7 +24,12 @@ function refreshBoard() {
         
         var owner = curPlace["Owner"];
 
-        drawText(curPlace["Men"], centX, centY);
+        if (owner == curPlayer) {
+            drawText(curPlace["Men"], centX, centY, ourSelectedColorSolid, ourSelectedColorLight);
+        }
+        else {
+            drawText(curPlace["Men"], centX, centY, enemySelectedColorSolid, enemySelectedColorLight);
+        }
 
         if (curPlace["SelectedState"] == "selected") {
             if (owner == curPlayer) {                
@@ -94,4 +68,18 @@ function refreshBoard() {
         //drawGradientBox(boardState["PromptBox"]["xPos"], boardState["PromptBox"]["yPos"],
           //  boardState["PromptBox"]["width"], boardState["PromptBox"]["height"], dialogColorOne, dialogColorTwo);
     //}
+
+    //curPlayer says who we are!
+    var playerTurn = parseInt(boardState["Turn"]["Player"]);
+
+    if (curPlayer != playerTurn) {        
+        $("#curturn").text(playerTurn);
+    }
+    else {        
+        $("#curturn").text(playerTurn + " (you)");
+    }
+
+    $("#curstage").text(boardState["Turn"]["Stage"]);
+    $("#curstate").text(boardState["Turn"]["State"]);
+    $("#menleft").text(boardState["Turn"]["MenLeft"]);
 }

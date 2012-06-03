@@ -3,40 +3,15 @@
 /// <reference path="https://raw.github.com/caleb531/jcanvas/master/builds/5.2.1/jcanvas.js"></script>
 /// <reference path="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.js">
 
-// global helper functions and variables -->
-/// <reference path="http://localhost:8088/assets/js/global.js"></script>
-// boardState and custom click data loading -->
-/// <reference path="http://localhost:8088/assets/js/polyBoardState.js"></script>               
-// handlers from HTML events -->
-/// <reference path="http://localhost:8088/assets/js/inputHandlers.js"> </script>
+var ourSelectedColor = 'rgba(0, 0, 255, 0.75)';
+var ourSelectedColorSolid = 'rgba(25, 55, 205, 1)';
+var ourSelectedColorLight = 'rgba(15, 25, 185, 1)';
+var ourSelectedColorAlpha = 'rgba(0, 0, 255, 0)';
 
-// wrappers for calls to the server -->
-/// <reference path="http://localhost:8088/assets/js/serverCalls.js"></script>
-
-// draw functions, and maybe some global variables related to drawing -->
-/// <reference path="http://localhost:8088/assets/js/globalDraw.js"> </script>
-// main temporary draw handlers -->
-/// <reference path="http://localhost:8088/assets/js/tempDrawHandlers.js"></script>
-// redraw all handlers -->
-/// <reference path="http://localhost:8088/assets/js/mainDraw.js"></script>
-
-// all dynamically generated html functions-->
-/// <reference path="http://localhost:8088/assets/js/dynamicHTMLGeneration.js"></script>
-
-// wrappers on server calls so we can call them directly-->
-/// <reference path="http://localhost:8088/assets/js/serverCalls.js"></script>
-
-// on page load (just call other stuff in here) -->
-/// <reference path="http://localhost:8088/assets/js/onPageLoad.js"></script>
-
-// main game function calls
-/// <reference path="http://localhost:8088/assets/js/mainFunctionCalls.js"> </script>
-
-// global entry point (DON'T RUN ANYTHING GLOBALLY ANYWHERE BUT HERE!) -->
-/// <reference path="http://localhost:8088/assets/js/globalEntryPoint.js"> </script>
-
-var ourSelectedColor = 'rgba(0, 0, 255, 0.75)'; var ourSelectedColorAlpha = 'rgba(0, 0, 255, 0)';
-var enemySelectedColor = 'rgba(255, 0, 0, 0.75)'; var enemySelectedColorAlpha = 'rgba(255, 0, 0, 0)';
+var enemySelectedColor = 'rgba(255, 0, 0, 0.75)';
+var enemySelectedColorSolid = 'rgba(255, 0, 0, 1)';
+var enemySelectedColorLight = 'rgba(200, 0, 0, 1)'; 
+var enemySelectedColorAlpha = 'rgba(255, 0, 0, 0)';
 
 var dialogColorOne = 'rgba(0, 255, 255, 0.7)'; var dialogColorTwo = 'rgba(0, 205, 255, 0)';
 
@@ -75,10 +50,10 @@ function drawStandardFadeoutCircle(centerX, centerY, radius, color, colorAlpha) 
     });
 }
 
-function drawText(text, xPos, yPos) {
-    $("canvas").drawText({
-        fillStyle: "#9cf",
-        strokeStyle: "#25a",
+function drawText(text, xPos, yPos, innerColor, outerColor) {
+    $("canvas").drawText({        
+        fillStyle: innerColor,
+        strokeStyle: outerColor,
         strokeWidth: 4,
         x: xPos, y: yPos,
         font: "36pt Verdana, sans-serif",

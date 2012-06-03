@@ -2,37 +2,6 @@
 /// <reference path="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
 /// <reference path="https://raw.github.com/caleb531/jcanvas/master/builds/5.2.1/jcanvas.js"></script>
 
-// global helper functions and variables -->
-/// <reference path="http://localhost:8088/assets/js/global.js"></script>
-// boardState and custom click data loading -->
-/// <reference path="http://localhost:8088/assets/js/polyBoardState.js"></script>               
-// handlers from HTML events -->
-/// <reference path="http://localhost:8088/assets/js/inputHandlers.js"> </script>
-
-// wrappers for calls to the server -->
-/// <reference path="http://localhost:8088/assets/js/serverCalls.js"></script>
-
-// draw functions, and maybe some global variables related to drawing -->
-/// <reference path="http://localhost:8088/assets/js/globalDraw.js"> </script>
-// main temporary draw handlers -->
-/// <reference path="http://localhost:8088/assets/js/tempDrawHandlers.js"></script>
-// redraw all handlers -->
-/// <reference path="http://localhost:8088/assets/js/mainDraw.js"></script>
-
-// all dynamically generated html functions-->
-/// <reference path="http://localhost:8088/assets/js/dynamicHTMLGeneration.js"></script>
-
-// wrappers on server calls so we can call them directly-->
-/// <reference path="http://localhost:8088/assets/js/serverCalls.js"></script>
-
-// on page load (just call other stuff in here) -->
-/// <reference path="http://localhost:8088/assets/js/onPageLoad.js"></script>
-
-// main game function calls
-/// <reference path="http://localhost:8088/assets/js/mainFunctionCalls.js"> </script>
-
-// global entry point (DON'T RUN ANYTHING GLOBALLY ANYWHERE BUT HERE!) -->
-/// <reference path="http://localhost:8088/assets/js/globalEntryPoint.js"> </script>
 
 //Every action should be funnelled here, which validates and maybe manipulates data
 
@@ -40,21 +9,91 @@ function placeCall(countryToPlace) {
     place(countryToPlace, 10); //TEMP HARDCODED
 }
 
+var attackerCountryTEMP;
+var defenderCountryTEMP;
 function attackCall(attackerCountry, defenderCountry) {
-    attack(attackerCountry, defenderCountry);
+    log("Choose dice to attack from " + attackerCountry + " to " + defenderCountry, "user");
+    //Get dice count    
+    $("#dicediv").show('fast');
+
+    boardState["Turn"]["State"] = "attackdice";
+
+    attackerCountryTEMP = attackerCountry;
+    defenderCountryTEMP = defenderCountry;
+    //attack(attackerCountry, defenderCountry);
+}
+
+function stopAttack() {
+    delete boardState["Turn"]["State"];
+    $("#dicediv").hide('fast');
+}
+
+function attackCallback(diceAmount) {
+    log("Attacking from " + attackerCountryTEMP + " to " + defenderCountryTEMP, "user");
+    if (boardState["Turn"]["State"] == "attackdice") {
+        attack(attackerCountryTEMP, defenderCountryTEMP, diceAmount);
+    }
+
+    stopAttack();
+}
+
+function advancetomove() {
+    if (parseInt(boardState["Turn"]["Player"]) == getOurPlayerNumber()) {
+        log("Entering move phase", "user");
+        boardState["Turn"]["State"] = "advancingtomove";
+    }
+    else {
+        log("Cannot enter move phase, it is not your turn", "user");
+    }
 }
 
 //These are bad... but it is late
 var moveFromTEMP;
 var moveToTEMP;
 function moveCall(moveFrom, moveTo) {
+    log("Choose units to move from " + moveFrom + " to " + moveTo, "user");
     moveFromTEMP = moveFrom;
     moveToTEMP = moveTo;
     //We need to query the user for movement information (like where they want to move to)
     doDialog(moveCallConfirmed, "Enter units to move");
 }
 function moveCallConfirmed(menCount) {
+    log("Moving from " + moveFromTEMP + " to " + moveToTEMP + " with " + menCount, "user");
     if (menCount != null) {        
         move(moveFromTEMP, moveToTEMP, menCount);
     }
+}
+
+
+
+
+function closeDialogYes(state) {
+    boardState["PromptBox"]["result"] = "yes";
+    $("#dialog").dialog('close');
+}
+
+function closeDialogNo() {
+    boardState["PromptBox"]["result"] = "no";
+    $("#dialog").dialog('close');
+}
+
+function dialogClosed() {
+    if (isFunction(boardState["PromptBox"]["callback"])) {
+        if (boardState["PromptBox"]["result"] == "yes") {
+            boardState["PromptBox"]["callback"]($("textarea#dialogtextboxarea").val());
+        }
+        else {
+            boardState["PromptBox"]["callback"](null);
+        }
+    }
+
+    $("textarea#dialogtextboxarea").val("");
+}
+
+function doDialog(callBack, name) {
+    $("#dialog").show('fast');
+    $("#dialog").dialog({ title: name });
+    $("div#dialog")["title"] = name;
+    boardState["PromptBox"]["callback"] = callBack;
+    $("#dialog").dialog('open');    
 }

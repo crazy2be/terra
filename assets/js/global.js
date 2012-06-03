@@ -2,39 +2,6 @@
 /// <reference path="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
 /// <reference path="https://raw.github.com/caleb531/jcanvas/master/builds/5.2.1/jcanvas.js"></script>
 
-// global helper functions and variables -->
-/// <reference path="http://localhost:8088/assets/js/global.js"></script>
-// boardState and custom click data loading -->
-/// <reference path="http://localhost:8088/assets/js/polyBoardState.js"></script>               
-// handlers from HTML events -->
-/// <reference path="http://localhost:8088/assets/js/inputHandlers.js"> </script>
-
-// wrappers for calls to the server -->
-/// <reference path="http://localhost:8088/assets/js/serverCalls.js"></script>
-
-// draw functions, and maybe some global variables related to drawing -->
-/// <reference path="http://localhost:8088/assets/js/globalDraw.js"> </script>
-// main temporary draw handlers -->
-/// <reference path="http://localhost:8088/assets/js/tempDrawHandlers.js"></script>
-// redraw all handlers -->
-/// <reference path="http://localhost:8088/assets/js/mainDraw.js"></script>
-
-// all dynamically generated html functions-->
-/// <reference path="http://localhost:8088/assets/js/dynamicHTMLGeneration.js"></script>
-
-// wrappers on server calls so we can call them directly-->
-/// <reference path="http://localhost:8088/assets/js/serverCalls.js"></script>
-
-// on page load (just call other stuff in here) -->
-/// <reference path="http://localhost:8088/assets/js/onPageLoad.js"></script>
-
-// main game function calls
-/// <reference path="http://localhost:8088/assets/js/mainFunctionCalls.js"> </script>
-
-// global entry point (DON'T RUN ANYTHING GLOBALLY ANYWHERE BUT HERE!) -->
-/// <reference path="http://localhost:8088/assets/js/globalEntryPoint.js"> </script>
-
-
 var mapPath = "http://localhost:8088/assets/riskmap_en_small.png";
 
 var MAP_WIDTH = 800;
@@ -81,11 +48,11 @@ function printNiceBoardState() {
         delete copiedBoard.Territories[index]["CenterLocation"];
     }
 
-    console.log(JSON.stringify(copiedBoard));
+    log(JSON.stringify(copiedBoard), "nice board");
 }
 
 function printFullBoardState() {
-    console.log(JSON.stringify(boardState));
+    log(JSON.stringify(boardState), "full board");    
 }
 
 function getOurPlayerNumber() {
@@ -96,4 +63,67 @@ function getOurPlayerNumber() {
 function isFunction(functionToCheck) {
     var getType = {};
     return functionToCheck && getType.toString.call(functionToCheck) == '[object Function]';
+}
+
+
+//decides when error codes are shown, can be dynamically added to
+var errorCodes = {
+    "test": { user: true, console: false, debugOnly: true, alert: true },
+    "nice board": { user: false, console: false, debugOnly: true, alert: false },
+    "full board": { user: false, console: false, debugOnly: true, alert: false },
+    "server 500": { user: true, console: true, debugOnly: false, alert: false },
+    "user": { user: true, console: false, debugOnly: true, alert: false },
+    "servercall": { user: true, console: false, debugOnly: true, alert: false },
+    "unknown": { user: true, console: false, debugOnly: true, alert: false },    
+};
+var textDisplayToUser = ""; //Eventually this should be an array, that is cleared or something
+function log(message, code) {
+    for (var index in errorCodes)
+    {
+        if (code == index) 
+        {
+            if (errorCodes[index].user) {
+                textDisplayToUser += "\n" + message;
+                $("#maintextoutputarea").text(textDisplayToUser);                
+                maintextoutputarea.scrollTop = maintextoutputarea.scrollHeight;
+                //$("#maintextoutputarea").scrollTop($("#maintextoutputarea").scrol
+            }
+            if (errorCodes[index].console) 
+            {
+                console.log(message);
+            }
+            if (errorCodes[index].debugMode) 
+            {
+                
+            }
+            if (errorCodes[index].alert) 
+            {
+                alert(message);
+            }
+            return;
+        }
+    }
+
+    message = "unknown message: " + message;
+    if (errorCodes["unknown"].user) 
+    {
+        textDisplayToUser += "\n" + message;
+        $("#maintextoutputarea").text(textDisplayToUser);                
+        maintextoutputarea.scrollTop = maintextoutputarea.scrollHeight;
+        //$("#maintextoutputarea").scrollTop($("#maintextoutputarea").scrol
+    }
+    if (errorCodes["unknown"].console) 
+    {
+        console.log(message);
+    }
+    if (errorCodes["unknown"].debugMode) 
+    {
+                
+    }
+    if (errorCodes["unknown"].alert) 
+    {
+        alert(message);
+    }
+    return;
+        
 }

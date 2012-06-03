@@ -6,7 +6,7 @@
 
 <html>
     <head>    
-        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>  
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>          
         <script type="text/javascript" src="https://raw.github.com/caleb531/jcanvas/master/builds/5.2.1/jcanvas.js"></script>
         
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.js"></script>
@@ -14,12 +14,24 @@
 
         <style type="text/css"> 
             body{-webkit-user-select:none;}
-            #mapimage{position: fixed; top : 50px; left: 50px; z-index:1; }
-            #jcanvas{position: fixed; top : 50px;  left: 50px; z-index:2; pointer-events: none; }            
+            #mapimage{position: fixed; top : 150px; left: 10px; z-index:1; }
+            #jcanvas{position: fixed; top : 150px;  left: 10px; z-index:2; pointer-events: none; }            
             
+            #dialog {display: none;}
             #dialogtextboxarea{margin : 5; width: 255;  height: 55%; z-index:50; }
             #dialogbuttonyes{ margin : 5; width: 120;  height: 25%; z-index:50; }
             #dialogbuttonno{ margin : 5; width: 120;  height: 25%; z-index:50; }
+            
+            #maintextoutputarea {position: fixed; top : 10px; left: 10px; width:495; height : 50; z-index:1; 
+                                 border-radius: 3px; resize: none; border: 1px solid black;}
+                                 
+            #maingraphicoutputarea {position: fixed; top : 10px; left: 515px; width:295; height : 128; z-index:1; 
+                                 border-radius: 3px; resize: none; border: 1px solid black;}   
+                                 
+            #dicediv {display:none}
+            
+            #bottomdisplay {position: fixed; top : 65px; left: 10px; width:495; height : 80; z-index:1; 
+                                 border-radius: 3px; resize: none; border: 1px solid black;}
         </style>
 
 
@@ -73,18 +85,52 @@
 
     <body>
                  
-        <div name="dialog" id="dialog" title="UNFILLED">	    
-        <textarea id='dialogtextboxarea'></textarea>
+        <div name="dialog" id="dialog">	    
+        <textarea id='dialogtextboxarea' onkeypress='dialogKeyDown(event)'></textarea>                
         <button name='dialogbuttonyes' id='dialogbuttonyes'>Confirm</button>
         <button name='dialogbuttonno' id='dialogbuttonno'>Cancel</button>
         </div>
 
-                          
+                   
+        <textarea name='maintextoutputarea' id='maintextoutputarea'>Dynamic text output</textarea>
+        <div id='maingraphicoutputarea'>
+            graphic output and dynamic input
+            <div name='dicediv' id='dicediv'>
+                <button name='dice1' id='dice1' onclick='attackCallback(1)'>One</button>
+                <button name='dice2' id='dice2' onclick='attackCallback(2)'>Two</button>
+                <button name='dice3' id='dice3' onclick='attackCallback(3)'>Three</button>
+            </div>
+        </div>
+        
+        <div id='bottomdisplay'>
+            <label for='curturn'>Current Turn: </label>
+            <label id='curturn'>?</label>
+            <label for='curturn''>----<//label>
+
+            <label for='curstage'>Current Stage: </label>
+            <label id='curstage'>?</label>
+            <label for='curstage'>----</label>
+
+            <label for='curstate'>Current State: </label>
+            <label id='curstate'>?</label>
+            <label for='curstate''>----<//label>
+
+            <button id='advancetomove' onclick="advancetomove()">Advance to move</button>
+            <label for='advancetomove''>----<//label>
+
+            <label for='menleft'>Men Left: </label>
+            <label id='menleft'>?</label>
+            <label for='menleft''>----<//label>
+        </div>
+                         
         <canvas id="jcanvas" width="800px" height="600px" onclick="passClickToRiskMap"></canvas>
         <img id="mapimage" width="800px" height="600px" alt="Terra Map" usemap="#mapevents"/>
 
         <map name="mapevents" id="mapevents">
         
+        
+
+
 <!-- The format (may be outdated) (then it is filled with javascript)
 <area class='territory' shape='poly' id=1
 
