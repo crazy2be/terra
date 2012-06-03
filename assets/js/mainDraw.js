@@ -50,7 +50,11 @@ function refreshBoard() {
         }
 
         if (curPlace["Mouseover"] != null &&
-        curPlace["Mouseover"] == true) {            
+        curPlace["Mouseover"] == true) {
+
+            if (getUrlVars()["highlight"] == "true")
+                log("highlight" + (new Date()).getMilliseconds(), "test");  
+                       
             if (curPlayer == owner) {
                 drawStandardFadeoutCircle(
                     curPlace["CenterLocation"].x,

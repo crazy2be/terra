@@ -4,6 +4,9 @@
 
 
 function territoryMouseOver(countryNumber, centerX, centerY) {
+    if (getUrlVars()["mouseover"] == "true")
+        log("mouseover" + (new Date()).getMilliseconds(), "test");
+
     var curPlayer = getOurPlayerNumber();
 
     var owner = boardState.Territories[countryNumber]["Owner"];
