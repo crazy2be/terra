@@ -2,7 +2,7 @@
 /// <reference path="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
 /// <reference path="https://raw.github.com/caleb531/jcanvas/master/builds/5.2.1/jcanvas.js"></script>
 
-var mapPath = "http://localhost:8088/assets/riskmap_en_small.png";
+var mapPath = "/assets/riskmap_en_small.png";
 
 var MAP_WIDTH = 800;
 var MAP_HEIGHT = 600;
