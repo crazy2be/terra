@@ -35,7 +35,7 @@
 /// <reference path="http://localhost:8088/assets/js/globalEntryPoint.js"> </script>
 
 
-function territoryClicked(countryNumber) {               
+function territoryClicked(countryNumber) {    
     var playerTurn = parseInt(boardState["Turn"]["Player"]);
     var playState = boardState["Turn"]["Stage"];
 
@@ -61,8 +61,8 @@ function territoryClicked(countryNumber) {
             else {                                
                 //Call attack
                 if (previouslySelectedIndex != null) {
-                    var owner = boardState.Territories[previouslySelectedIndex]["Owner"];
-                    
+                    var owner = boardState.Territories[countryNumber]["Owner"];
+
                     //They probably want to move
                     if (owner == curPlayer) {                                              
                         moveCall(previouslySelectedIndex, countryNumber);
@@ -73,7 +73,7 @@ function territoryClicked(countryNumber) {
                 }
                 else {                 
                     //Set it as selected
-                    delete boardState.Territories[previouslySelectedIndex];
+                    //delete boardState.Territories[previouslySelectedIndex];
                     boardState.Territories[countryNumber]["SelectedState"] = "selected";                    
                 }                
             }                 

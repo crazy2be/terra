@@ -47,12 +47,35 @@ function loadJSONToBoardState(data) {
     refreshBoard();
 }
 
+function callServer(callLocation, dataIn) {
+    if (dataIn == null) {
+        jQuery.post(callLocation, null, loadJSONToBoardState);
+    }
+    else {
+        $.ajax({
+        type : "post",
+        data : JSON.stringify(dataIn),
+        cache : false,
+        url : callLocation,
+        dataType : "text",
+        success : loadJSONToBoardState,
+        error : errorRecieved
+    });
+
+        //jQuery.post(callLocation, , loadJSONToBoardState);
+    }
+}
+
+function errorRecieved(request, error){
+console.log(request.responseText);
+}
+
 function poll() {
-    jQuery.post("api/poll", null, loadJSONToBoardState);
+    callServer("api/poll");    
 }
 
 function state() {
-    jQuery.post("api/state", null, loadJSONToBoardState);
+    callServer("api/state");    
 }
 
 var newStuff = 0;
@@ -64,7 +87,7 @@ function move(countryFrom, countryTo, menAmount) {
     object["To"] = parseInt(countryTo);
     object["Num"] = parseInt(menAmount);
 
-    jQuery.post("api/move", JSON.stringify(object), loadJSONToBoardState);
+    callServer("api/move", object);    
 }
 
 function place(countryNumber, placed) {
@@ -73,7 +96,7 @@ function place(countryNumber, placed) {
     object["Num"] = placed;
     object["Territory"] = countryNumber;
 
-    jQuery.post("api/place", JSON.stringify(object), loadJSONToBoardState);
+    callServer("api/place", object);    
 }
 
 function attack(countryAttacker, countryDefender) {
@@ -83,5 +106,5 @@ function attack(countryAttacker, countryDefender) {
     object["To"] = parseInt(countryDefender);
     object["Dice"] = 3; //TEMP HARDCODED!
 
-    jQuery.post("api/attack", JSON.stringify(object), loadJSONToBoardState);
+    callServer("api/attack", object);    
 }
