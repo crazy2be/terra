@@ -5,7 +5,6 @@
 
 function pageLoaded2() {
     setTimeout(refreshTimer, 1000);
-
     
 }
 

@@ -65,16 +65,24 @@ function isFunction(functionToCheck) {
     return functionToCheck && getType.toString.call(functionToCheck) == '[object Function]';
 }
 
+function getUrlVars() {
+    var vars = {};
+    var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+        vars[key] = value;
+    });
+    return vars;
+}
+
 
 //decides when error codes are shown, can be dynamically added to
 var errorCodes = {
-    "test": { user: true, console: false, debugOnly: true, alert: true },
+    "test": { user: true, console: false, debugOnly: true, alert: false },
     "nice board": { user: false, console: false, debugOnly: true, alert: false },
     "full board": { user: false, console: false, debugOnly: true, alert: false },
     "server 500": { user: true, console: true, debugOnly: false, alert: false },
     "user": { user: true, console: false, debugOnly: true, alert: false },
     "servercall": { user: true, console: false, debugOnly: true, alert: false },
-    "unknown": { user: true, console: false, debugOnly: true, alert: false },    
+    "unknown": { user: true, console: false, debugOnly: true, alert: false },        
 };
 var textDisplayToUser = ""; //Eventually this should be an array, that is cleared or something
 function log(message, code) {

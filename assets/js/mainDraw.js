@@ -5,6 +5,9 @@
 
 
 function refreshBoard() {
+    if(getUrlVars()["refresh"] == "true")
+        log("refreshed" + (new Date()).getMilliseconds(), "test");
+
     //Clear current canvas
     $("canvas").clearCanvas({
         x: 0, y: 0,
