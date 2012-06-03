@@ -27,8 +27,8 @@ func NewPlayer(numplayers int) Player {
 type Turn struct {
 	Player int
 	Stage  string
-	MenLeft int // Men left to place (in the placing stage), minimum number of men to move when an attack is won in the attacking stage
-	LastAttacked int
+	MenLeft int // Men left to place (in the placing stage)
+	Attack *AttackData // When an attack has been completed, this is populated with information about the attack, and is used by Capture().
 }
 
 type Continent struct {
@@ -170,10 +170,6 @@ func (g *Game) jsonSerialize(w io.Writer, player int, extra interface{}, sendDel
 	fmt.Fprintln(w, "	\"Turn\": ")
 	enc.Encode(g.Turn)
 	fmt.Fprintln(w, "}")
-}
-
-func (g *Game) Poll() (interface{}, error) {
-	return nil, nil
 }
 
 func (g *Game) State(w http.ResponseWriter, r *http.Request, playerid int) {

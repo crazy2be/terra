@@ -37,6 +37,10 @@ func (g *Game) AttackApi(r *http.Request) (extra AttackResp, err error) {
 	
 	ar.AttDice = attdice
 	ar.DefDice = defdice
+	if g.Territories[ad.To].Men == 0 {
+		g.Turn.Attack = &AttackData
+	}
+	
 	return ar, nil
 }
 
@@ -81,12 +85,6 @@ func (g *Game) Attack(from int, to int, adice int) (attdice []int, defdice []int
 	t[to].Dirty()
 	t[from].Men -= defwins
 	t[from].Dirty()
-	
-	if t[to].Men == 0 {
-		g.Turn.MenLeft = adice
-		g.Turn.LastAttacked = to
-		t[to].Owner = t[from].Owner
-	}
 	
 	return
 }

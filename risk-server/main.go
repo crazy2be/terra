@@ -136,14 +136,20 @@ func ApiHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Invalid player id", playerid)
 		return
 	}
-	if playerid != game.Turn.Player && method != "poll" && method != "state" {
+	
+	game.Lock()
+	defer game.Unlock()
+	
+	if method == "state" {
+		// TODO: Error checking
+		game.jsonSerialize(w, playerid, nil, true)
+		return
+	}
+	if playerid != game.Turn.Player && method != "poll" {
 		w.WriteHeader(403)
 		fmt.Fprintf(w, "It's not your turn, %d. It is currently %d's turn!", playerid, game.Turn.Player)
 		return
 	}
-	
-	game.Lock()
-	defer game.Unlock()
 	
 	var extra interface{}
 	
@@ -155,16 +161,15 @@ func ApiHandler(w http.ResponseWriter, r *http.Request) {
 		// if error not nil, show 500 page with error
 		// else print json delta with extra object.
 		case "poll":
-			extra, err = game.Poll()
-		case "state":
-			game.jsonSerialize(w, playerid, nil, true)
-			return
+			// Do nothing
 		case "attack":
 			extra, err = game.AttackApi(r)
 		case "place":
 			extra, err = game.PlaceApi(r)
 		case "move":
 			extra, err = game.MoveApi(r)
+		case "capture":
+			err = game.CaptureApi(r)
 	}
 	if err != nil {
 		w.WriteHeader(500)
