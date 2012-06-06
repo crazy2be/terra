@@ -7,4 +7,4 @@ MergeRecursive(boardState, terrClickData);
 
 $(document).ready(pageLoaded);
 
-state();
+getState();
