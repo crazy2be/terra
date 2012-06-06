@@ -2,6 +2,9 @@
 /// <reference path="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
 /// <reference path="https://raw.github.com/caleb531/jcanvas/master/builds/5.2.1/jcanvas.js"></script>
 
+//Do try to minimize use of this. Try to add every function to its associated file, making
+//a specific global for that file if needed.
+
 var mapPath = "/assets/riskmap_en_small.png";
 
 var MAP_WIDTH = 800;
@@ -9,6 +12,9 @@ var MAP_HEIGHT = 600;
 
 //ATTENTION! This does not properly transfer arrays, only objects
 function MergeRecursive(obj1, obj2) {
+    jQuery.extend(true, obj1, obj2);
+    return obj1;
+
     for (var p in obj2) {
         try {
             // Property in destination object set; update its value.

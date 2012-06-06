@@ -2,6 +2,37 @@
 /// <reference path="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
 /// <reference path="https://raw.github.com/caleb531/jcanvas/master/builds/5.2.1/jcanvas.js"></script>
 
+function loadJSONToBoardState(data) {
+    printNiceBoardState();   
+
+    MergeRecursive(boardState, JSON.parse(data));
+
+    printNiceBoardState();
+
+    refreshBoard();        
+}
+
+function throwChangeEvents(obj1, obj2)
+{
+//Puts ob2 onto obj1
+    for (var p in obj2) {
+        try {
+            //A further object, go deeper
+            if (obj2[p].constructor == Object) {
+                obj1[p] = MergeRecursive(obj1[p], obj2[p]);
+
+            } else {
+                obj1[p] = obj2[p];
+            }
+
+        } catch (e) {
+            // Property in destination object not set; create it and set its value.                
+            obj1[p] = obj2[p];
+        }
+    }
+    return obj1;
+}
+
         //merged to with jQuery.extend on every return from every call to server
 var boardState = {
 	"Players" : {
@@ -69,6 +100,7 @@ var boardState = {
     
 };              
 
+//Dynamically loaded at runtime into the html image map and into the boardState
         var terrClickData = {
 "Territories": {	"0" : { 		"CenterLocation": {x : 678.8397, y : 247.6586},
 		"Coords": [721, 296, 722, 293, 724, 289, 725, 285, 726, 282, 727, 280, 727, 273, 727, 272, 727, 266, 727, 261, 728, 258, 710, 253, 711, 249, 708, 246, 707, 243, 706, 241, 701, 234, 695, 231, 691, 230, 691, 226, 675, 219, 674, 218, 672, 213, 663, 212, 660, 209, 649, 212, 649, 216, 639, 220, 636, 214, 627, 229, 637, 234, 643, 255, 648, 264, 655, 265, 656, 261, 659, 259, 661, 259, 663, 263, 663, 265, 665, 268, 667, 270, 673, 270, 675, 271, 677, 266, 680, 265, 680, 271, 687, 271, 689, 268, 695, 268, 699, 271, 703, 275, 705, 276, 707, 277, 707, 279, 709, 283, 709, 289, 712, 291, 715, 293, 717, 293, 721, 296]

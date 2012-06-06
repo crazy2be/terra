@@ -34,6 +34,9 @@
                                  border-radius: 3px; resize: none; border: 1px solid black;}
         </style>
 
+        <!-- The order of these does matter! However they may easier be in the wrong order
+             now, and any better orders should be done, even if they require refactoring
+             to fix reference problems.-->
 
         <!-- global helper functions and variables -->
         <script type="text/javascript" src="/assets/js/global.js"></script>
@@ -41,13 +44,21 @@
 
         <!-- boardState and custom click data loading -->
         <script type="text/javascript" src="/assets/js/dataBoardState.js"></script>
-                
-        <!-- handlers from HTML events -->
-        <script type="text/javascript" src="/assets/js/inputHandlers.js"> </script>
 
 
+        <!-- main game function calls -->
+        <script type="text/javascript" src="/assets/js/callsLocal.js"></script>
         <!-- wrappers for calls to the server -->
         <script type="text/javascript" src="/assets/js/callsServer.js"></script>
+        
+                
+        <!-- handlers from HTML events -->
+        <script type="text/javascript" src="/assets/js/eventGUIs.js"></script>
+        <!-- on page load (just call other stuff in here) -->
+        <script type="text/javascript" src="/assets/js/eventOnPageLoad.js"></script>
+        <!-- global entry point (DON'T RUN ANYTHING GLOBALLY ANYWHERE BUT HERE!) -->
+        <script type="text/javascript" src="/assets/js/eventGlobalEntryPoint.js"></script>                
+
 
 
         <!-- draw functions, and maybe some global variables related to drawing -->
@@ -61,18 +72,8 @@
         <!-- all dynamically generated html functions-->
         <script type="text/javascript" src="/assets/js/dynamicHTMLGeneration.js"></script>
 
-
-        <!-- wrappers on server calls so we can call them directly-->
-        <script type="text/javascript" src="/assets/js/callsServer.js"></script>
-        <!-- on page load (just call other stuff in here) -->
-        <script type="text/javascript" src="/assets/js/eventOnPageLoad.js">
-        </script>
-
-        <!-- main game function calls -->
-        <script type="text/javascript" src="/assets/js/callsLocal.js"></script>
-
-        <!-- global entry point (DON'T RUN ANYTHING GLOBALLY ANYWHERE BUT HERE!) -->
-        <script type="text/javascript" src="/assets/js/eventGlobalEntryPoint.js"></script>        
+                      
+        
     </head>
 
     <body>
