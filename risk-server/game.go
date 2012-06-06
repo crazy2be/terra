@@ -122,10 +122,10 @@ func (g *Game) tokenValid(token string) bool {
 }
 
 func (g *Game) SendDelta(w io.Writer, player int, extra interface{}) {
-	g.jsonSerialize(w, player, extra, !DEBUG_MODE)
+	g.jsonSerialize(w, player, extra, DEBUG_MODE)
 }
 
-func (g *Game) jsonSerialize(w io.Writer, player int, extra interface{}, sendDelta bool) {
+func (g *Game) jsonSerialize(w io.Writer, player int, extra interface{}, sendAll bool) {
 	enc := json.NewEncoder(w)
 	fmt.Fprintln(w, "{")
 	if extra != nil {
@@ -133,10 +133,10 @@ func (g *Game) jsonSerialize(w io.Writer, player int, extra interface{}, sendDel
 		enc.Encode(extra)
 		fmt.Fprintf(w, ",")
 	}
-	fmt.Fprintln(w, "	\"Players\": {")
+	fmt.Fprintln(w, "\"Players\": {")
 	first := true
 	for i := range g.Players {
-		if sendDelta || !g.Players[i].dirty[player] {
+		if !sendAll && !g.Players[i].dirty[player] {
 			continue
 		}
 		
@@ -144,16 +144,16 @@ func (g *Game) jsonSerialize(w io.Writer, player int, extra interface{}, sendDel
 			fmt.Fprintf(w, ",")
 		}
 		first = false
-		fmt.Fprintf(w, "		\"%d\": ", i)
+		fmt.Fprintf(w, "\"%d\": ", i)
 		enc.Encode(g.Players[i])
 		
 		g.Players[i].dirty[player] = false
 	}
-	fmt.Fprintln(w, "	},")
-	fmt.Fprintln(w, "	\"Territories\": {")
+	fmt.Fprintln(w, "},")
+	fmt.Fprintln(w, "\"Territories\": {")
 	first = true
 	for i := range g.Territories {
-		if sendDelta || !g.Territories[i].dirty[player] {
+		if !sendAll && !g.Territories[i].dirty[player] {
 			continue
 		}
 		
@@ -161,13 +161,13 @@ func (g *Game) jsonSerialize(w io.Writer, player int, extra interface{}, sendDel
 			fmt.Fprintf(w, ",")
 		}
 		first = false
-		fmt.Fprintf(w, "		\"%d\": ", i)
+		fmt.Fprintf(w, "\"%d\": ", i)
 		enc.Encode(g.Territories[i])
 		
 		g.Territories[i].dirty[player] = false
 	}
-	fmt.Fprintln(w, "	},")
-	fmt.Fprintln(w, "	\"Turn\": ")
+	fmt.Fprintln(w, "},")
+	fmt.Fprintf(w, "\"Turn\": ")
 	enc.Encode(g.Turn)
 	fmt.Fprintln(w, "}")
 }

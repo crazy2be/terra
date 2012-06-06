@@ -149,7 +149,7 @@ func ApiHandler(w http.ResponseWriter, r *http.Request) {
 	
 	if method == "state" {
 		// TODO: Error checking
-		game.jsonSerialize(w, playerid, nil, false)
+		game.jsonSerialize(w, playerid, nil, true)
 		return
 	}
 	if playerid != game.Turn.Player && method != "poll" {
