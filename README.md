@@ -1,4 +1,4 @@
-risk
-====
+Terra Takeover
+==============
 
-Weekend hackathon risk game
+A risk-like computerized strategy game.
